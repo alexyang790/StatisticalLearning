@@ -1,0 +1,163 @@
+{
+  "main": {
+    "id": "3e6c9daf68325a19",
+    "type": "split",
+    "children": [
+      {
+        "id": "e2da088784f391ab",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bc972c5a8ecd860d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ClassNotes/Supervised Learning II.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "57c491beffad9b71",
+    "type": "split",
+    "children": [
+      {
+        "id": "b915042924b1c6f0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bf64c4007a310538",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "1275792780cf4ce9",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "5c9ceacf511bdc04",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "b5fb9fbeeed7a9f9",
+    "type": "split",
+    "children": [
+      {
+        "id": "6bf029fcf1adbf89",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "29cd7570d2c9414a",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "ClassNotes/Supervised Learning II.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "ce2a965a9ffd31ad",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "ClassNotes/Supervised Learning II.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "4fd2f241f186c326",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "a54108e49f2702d3",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "ClassNotes/Supervised Learning II.md"
+              }
+            }
+          },
+          {
+            "id": "25b567a6fee63ac3",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obsidian-git:Open Git source control": false
+    }
+  },
+  "active": "bf64c4007a310538",
+  "lastOpenFiles": [
+    "ClassNotes/Supervised Learning II.md",
+    "ClassNotes"
+  ]
+}
