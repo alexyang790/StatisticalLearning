@@ -85,7 +85,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 239.5
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -101,7 +101,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/supervised_learning_II.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +117,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/supervised_learning_II.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -141,7 +139,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/supervised_learning_II.pdf"
+                "file": "Untitled.md"
               }
             }
           },
@@ -172,11 +170,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bc972c5a8ecd860d",
+  "active": "bf64c4007a310538",
   "lastOpenFiles": [
-    "ClassNotes/Supervised Learning II.md",
+    "Books/ISLRv2_corrected_June_2023.pdf",
+    "Books",
     "Slides/supervised_learning_II.pdf",
     "Untitled.md",
+    "ClassNotes/Supervised Learning II.md",
     "Slides",
     "ClassNotes"
   ]
