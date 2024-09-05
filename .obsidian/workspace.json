@@ -11,6 +11,22 @@
             "id": "bc972c5a8ecd860d",
             "type": "leaf",
             "state": {
+              "type": "pdf",
+              "state": {
+                "file": "Slides/supervised_learning_II.pdf"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "ee311f0c85545f58",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "34d53912f0f31fd5",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
                 "file": "ClassNotes/Supervised Learning II.md",
@@ -85,7 +101,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ClassNotes/Supervised Learning II.md",
+                "file": "Slides/supervised_learning_II.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ClassNotes/Supervised Learning II.md",
+                "file": "Slides/supervised_learning_II.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +141,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ClassNotes/Supervised Learning II.md"
+                "file": "Slides/supervised_learning_II.pdf"
               }
             }
           },
@@ -142,7 +158,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -155,9 +172,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bf64c4007a310538",
+  "active": "bc972c5a8ecd860d",
   "lastOpenFiles": [
     "ClassNotes/Supervised Learning II.md",
+    "Slides/supervised_learning_II.pdf",
+    "Untitled.md",
+    "Slides",
     "ClassNotes"
   ]
 }
