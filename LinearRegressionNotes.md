@@ -646,3 +646,4 @@ plot(random_numbers_truncated, main = "Scatter Plot of 100 Truncated Random Numb
      xlab = "Index", ylab = "Random Number", pch = 19, col = "blue")
 
 ```
+

@@ -4,34 +4,32 @@
     "type": "split",
     "children": [
       {
-        "id": "e2da088784f391ab",
+        "id": "89062443b9cbaf0a",
         "type": "tabs",
-        "dimension": 54.93079584775087,
         "children": [
           {
-            "id": "bc972c5a8ecd860d",
+            "id": "2fe160db0397b141",
             "type": "leaf",
             "state": {
               "type": "pdf",
               "state": {
-                "file": "Slides/supervised_learning_II.pdf"
+                "file": "Slides/supervised_learning_I.pdf"
               }
             }
           }
         ]
       },
       {
-        "id": "ee311f0c85545f58",
+        "id": "db96ac980c9bed48",
         "type": "tabs",
-        "dimension": 45.069204152249135,
         "children": [
           {
-            "id": "34d53912f0f31fd5",
+            "id": "ae865b50a8d3eab7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "LinearRegressionNotes.md",
+                "file": "ClassNotes/Supervised Learning I.md",
                 "mode": "source",
                 "source": false
               }
@@ -87,7 +85,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5
+    "width": 239.5,
+    "collapsed": true
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -103,7 +102,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "LinearRegressionNotes.md",
+                "file": "ClassNotes/Supervised Learning I.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +119,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "LinearRegressionNotes.md",
+                "file": "ClassNotes/Supervised Learning I.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -143,7 +142,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "LinearRegressionNotes.md"
+                "file": "ClassNotes/Supervised Learning I.md"
               }
             }
           },
@@ -160,7 +159,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -174,17 +174,19 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "bf64c4007a310538",
+  "active": "ae865b50a8d3eab7",
   "lastOpenFiles": [
+    "Slides/supervised_learning_I.pdf",
+    "ClassNotes/Supervised Learning I.md",
+    "Screenshot 2024-09-08 at 14.12.31.png",
+    "Books/ISLRv2_corrected_June_2023.pdf",
+    "LinearRegressionNotes.md",
+    "Slides/supervised_learning_II.pdf",
     "Homework",
     "ClassNotes/Supervised Learning II.md",
-    "LinearRegressionNotes.md",
     "MidTermNotes.Rmd",
-    "Slides/supervised_learning_II.pdf",
     "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md",
     "Excalidraw",
-    "Untitled.md",
-    "Books/ISLRv2_corrected_June_2023.pdf",
     "Books",
     "Slides",
     "ClassNotes"
