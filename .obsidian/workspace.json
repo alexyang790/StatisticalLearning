@@ -4,59 +4,33 @@
     "type": "split",
     "children": [
       {
-        "id": "89062443b9cbaf0a",
+        "id": "261d81bd981ea111",
         "type": "tabs",
         "children": [
           {
-            "id": "d42599cf0ec5f40d",
+            "id": "ccb37381278a575f",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "Slides/Rintro.pdf"
+                "file": "ClassNotes/Supervised Learning II.md",
+                "mode": "source",
+                "source": false
               }
             }
           },
           {
-            "id": "6e3e790d1280a80b",
+            "id": "a4438d48b55c3bd5",
             "type": "leaf",
             "state": {
               "type": "pdf",
               "state": {
-                "file": "Slides/supervised_learning_I.pdf"
-              }
-            }
-          },
-          {
-            "id": "2fe160db0397b141",
-            "type": "leaf",
-            "state": {
-              "type": "pdf",
-              "state": {
-                "file": "Slides/supervised_learning_II.pdf"
+                "file": "Slides/bootstrap.pdf"
               }
             }
           }
         ],
         "currentTab": 1
-      },
-      {
-        "id": "61c40b6f500fff89",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "66b57898243b28cd",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "ClassNotes/Supervised Learning I.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          }
-        ]
       }
     ],
     "direction": "vertical"
@@ -106,8 +80,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5,
-    "collapsed": true
+    "width": 239.5
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -123,7 +96,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/supervised_learning_I.pdf",
+                "file": "Slides/bootstrap.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -140,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/supervised_learning_I.pdf",
+                "file": "Slides/bootstrap.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -163,7 +136,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/supervised_learning_I.pdf"
+                "file": "Slides/bootstrap.pdf"
               }
             }
           },
@@ -195,23 +168,24 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "6e3e790d1280a80b",
+  "active": "a4438d48b55c3bd5",
   "lastOpenFiles": [
-    "Slides/supervised_learning_II.pdf",
-    "Slides/supervised_learning_I.pdf",
-    "ClassNotes/Supervised Learning I.md",
+    "ClassNotes/Resampling - Bootstrap and Splines.md",
+    "Slides/bootstrap.pdf",
+    "ClassNotes/Supervised Learning II.md",
     "Slides/Rintro.pdf",
+    "Slides/supervised_learning_I.pdf",
+    "Slides/supervised_learning_II.pdf",
+    "Books/Books.md",
+    "ClassNotes/Supervised Learning I.md",
+    "Books/ISLRv2_corrected_June_2023.pdf",
     "Rproject/hw1_files/libs/quarto-html/tippy.umd.min.js",
     "Rproject/hw1_files/libs/quarto-html/tippy.css",
     "Rproject/hw1_files/libs/quarto-html/quarto.js",
     "Rproject/hw1_files/libs/quarto-html/quarto-syntax-highlighting.css",
     "Rproject/hw1_files/libs/quarto-html/popper.min.js",
-    "Rproject/hw1_files/libs/quarto-html/anchor.min.js",
-    "Rproject/hw1_files/libs/clipboard/clipboard.min.js",
-    "Rproject/hw1_files/libs/bootstrap/bootstrap.min.js",
     "Screenshot 2024-09-08 at 14.12.31.png",
     "LinearRegressionNotes.md",
-    "ClassNotes/Supervised Learning II.md",
     "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md"
   ]
 }
