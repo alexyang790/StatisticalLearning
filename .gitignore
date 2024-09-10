@@ -379,6 +379,3 @@ rsconnect/
 
 # remove slides folder
 Slides/
-
-# remove R project folder 
-Rproject/
