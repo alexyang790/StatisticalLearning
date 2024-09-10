@@ -56,12 +56,12 @@ Simulate $n=100$ realizations from these distributions using $\sigma=3$. Produce
 ::: {.callout-note title="Solution"}
 ```{r}
 set.seed(611)
-data <- sim_func(100, 3)
+train_data <- sim_func(100, 3)
 true_function <- function(X){
   -1+ 0.5*X + 0.2*X^2
 }
 
-ggplot(data, aes(x=X, y=Y)) + 
+ggplot(train_data, aes(x=X, y=Y)) + 
   geom_point() +
   geom_function(fun = true_function)
 ```
@@ -73,8 +73,23 @@ Fit three polynomial regression models using least squares: linear, quadratic, a
 
 -   Note: The true model is quadratic, but we are also fitting linear (less complex) and cubic (more complex) models.
 
+
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+# we have already generated training data train_data
+# creating three models 
+linear_model <- lm(Y ~X, data = train_data)
+quad_model  <- lm(Y~poly(X, degree = 2), data = train_data)
+cube_model <- lm(Y~poly(X, degree = 3), data = train_data)
+
+
+
+# creating the plot  
+ggplot(train_data, aes(x=X, y=Y)) +
+  geom_points()+
+  geom_function(fun = true_function) +
+  
+```
 :::
 
 ## d. Predictive performance
