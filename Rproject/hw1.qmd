@@ -82,13 +82,29 @@ linear_model <- lm(Y ~X, data = train_data)
 quad_model  <- lm(Y~poly(X, degree = 2), data = train_data)
 cube_model <- lm(Y~poly(X, degree = 3), data = train_data)
 
+# creating new data points to predict 
+new_data <- tibble(X = seq(min(train_data$X), max(train_data$X), length=100))
 
+# appending new results into new_data
+new_data <- new_data %>%
+  mutate(
+    linear_pred = predict(linear_model, newdata = new_data),
+    quad_pred = predict(quad_model, newdata = new_data),
+    cube_pred = predict(cube_model, newdata = new_data)
+  )
 
-# creating the plot  
-ggplot(train_data, aes(x=X, y=Y)) +
-  geom_points()+
-  geom_function(fun = true_function) +
-  
+# generate ggplot
+ggplot(train_data, aes(x=X, y=Y)) + 
+  geom_point(color = 'black', alpha = 0.5, size = 0.3) +
+  geom_function(fun = true_function, aes(color = "True Population Line")) +
+  geom_line(data=new_data, aes(x=X, y=linear_pred, color = 'Linear'))+
+  geom_line(data=new_data, aes(x=X, y=quad_pred, color = 'Quadratic'))+
+  geom_line(data=new_data, aes(x=X, y=cube_pred, color = 'Cubic'))+
+  scale_color_manual(name = "Model",
+                     values = c("True Population Line" = "black", 
+                                "Linear" = "red", 
+                                "Quadratic" = "green", 
+                                "Cubic" = "purple")) 
 ```
 :::
 
@@ -100,7 +116,28 @@ Generate a *test data* set of 10,000 observations from the same distributions. U
 -   Are the results as expected?
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+set.seed(612)
+train_data <- sim_func(10000, 3)
+
+train_data <- train_data %>%
+  mutate(
+    linear_pred = predict(newdata = train_data, linear_model),
+    quad_pred = predict(newdata = train_data, quad_model),
+    cube_pred = predict(newdata = train_data, cube_model)
+  )
+
+mse_linear <- mean((train_data$Y - train_data$linear_pred)^2)
+mse_quadratic <- mean((train_data$Y - train_data$quad_pred)^2)
+mse_cubic <- mean((train_data$Y - train_data$cube_pred)^2)
+
+cat("MSE for Linear Model: ", mse_linear, "\n")
+cat("MSE for Quadratic Model: ", mse_quadratic, "\n")
+cat("MSE for Cubic Model: ", mse_cubic, "\n")
+```
+
+The results are not to be expected because when the degrees increase the MSE increased as well. They should be less as the degree increases and the model becomes more flexible
+
 :::
 
 ## e. Optimal performance
@@ -108,7 +145,17 @@ Add solution here
 What is the best achievable MSE? That is, what is the MSE if the true $f(x)$ was used to evaluate the test set? How close does the best method come to achieving the optimum?
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+# adding bestmse from the true function
+train_data <- train_data |>
+  mutate(
+    bestmse = -1+0.5*X+0.2*X^2
+  )
+
+# calculate best mse 
+best_mse = mean((train_data$Y-train_data$bestmse)^2)
+cat("the best mse is: ", best_mse)
+```
 :::
 
 ## f. Replication
