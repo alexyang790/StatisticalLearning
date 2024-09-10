@@ -54,4 +54,17 @@ library(broom)
 broom::augment(ml)
 ```
 ### 3.2.2 Prediction with `predict()`
->the function 
+>the function `predict()` is used to get the predicted values 
+
+```r
+xseq = seq(0,1,length=200)
+xeval = tibble(x = xseq)
+yhat = predict(model, xval) #yhat prediction
+
+#alternatively one could use augment()
+broom::augment(model, newdatae = xval)
+```
+# 4. Polynomial Inputs
+## 4.0 Summary 
+- In simple regression model the model complexity is minimal because we only have two estimators $\beta_0~and~\beta_1$
+- a *paramatic approach* to add flexibility is to incorporate *polynomial terms* into the model 
