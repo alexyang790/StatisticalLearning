@@ -37,6 +37,25 @@
               }
             }
           }
+        ],
+        "currentTab": 2
+      },
+      {
+        "id": "61c40b6f500fff89",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "66b57898243b28cd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ClassNotes/Supervised Learning I.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
         ]
       }
     ],
@@ -87,7 +106,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5
+    "width": 239.5,
+    "collapsed": true
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -103,7 +123,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/Rintro.pdf",
+                "file": "Slides/supervised_learning_II.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +140,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/Rintro.pdf",
+                "file": "Slides/supervised_learning_II.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -143,7 +163,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/Rintro.pdf"
+                "file": "Slides/supervised_learning_II.pdf"
               }
             }
           },
@@ -175,23 +195,22 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "d42599cf0ec5f40d",
+  "active": "2fe160db0397b141",
   "lastOpenFiles": [
-    "Rproject",
-    "R project",
-    "untitled folder",
     "Slides/supervised_learning_I.pdf",
-    "Slides/Rintro.pdf",
-    "Slides/supervised_learning_II.pdf",
     "ClassNotes/Supervised Learning I.md",
+    "Slides/Rintro.pdf",
+    "Rproject/hw1_files/libs/quarto-html/tippy.umd.min.js",
+    "Rproject/hw1_files/libs/quarto-html/tippy.css",
+    "Rproject/hw1_files/libs/quarto-html/quarto.js",
+    "Rproject/hw1_files/libs/quarto-html/quarto-syntax-highlighting.css",
+    "Rproject/hw1_files/libs/quarto-html/popper.min.js",
+    "Rproject/hw1_files/libs/quarto-html/anchor.min.js",
+    "Rproject/hw1_files/libs/clipboard/clipboard.min.js",
+    "Rproject/hw1_files/libs/bootstrap/bootstrap.min.js",
     "Screenshot 2024-09-08 at 14.12.31.png",
-    "Books/ISLRv2_corrected_June_2023.pdf",
     "LinearRegressionNotes.md",
-    "Homework",
     "ClassNotes/Supervised Learning II.md",
-    "MidTermNotes.Rmd",
-    "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md",
-    "Excalidraw",
-    "Books"
+    "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md"
   ]
 }

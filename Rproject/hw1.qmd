@@ -33,7 +33,18 @@ Y &= -1 + .5X + .2X^2 + \epsilon \\
 \end{align*}
 ```
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+sim_func <- function(n, sigma) {
+  # generate X
+  X <- rnorm(n, mean = 0, sd = 1)
+  # generate epsilon
+  epsilon <- rnorm(n, mean = 0, sd = sigma)
+  # generate Y
+  Y <- -1+0.5*X+0.2*X^2+epsilon
+  # return elements
+  tibble(X = X, Y = Y)
+}
+```
 :::
 
 ## b. Generate training data
@@ -43,7 +54,17 @@ Simulate $n=100$ realizations from these distributions using $\sigma=3$. Produce
 -   Use `set.seed(611)` prior to generating the data.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+set.seed(611)
+data <- sim_func(100, 3)
+true_function <- function(X){
+  -1+ 0.5*X + 0.2*X^2
+}
+
+ggplot(data, aes(x=X, y=Y)) + 
+  geom_point() +
+  geom_function(fun = true_function)
+```
 :::
 
 ## c. Fit three models
