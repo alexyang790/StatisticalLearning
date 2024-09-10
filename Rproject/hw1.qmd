@@ -73,14 +73,13 @@ Fit three polynomial regression models using least squares: linear, quadratic, a
 
 -   Note: The true model is quadratic, but we are also fitting linear (less complex) and cubic (more complex) models.
 
-
 ::: {.callout-note title="Solution"}
 ```{r}
 # we have already generated training data train_data
 # creating three models 
 linear_model <- lm(Y ~X, data = train_data)
-quad_model  <- lm(Y~poly(X, degree = 2), data = train_data)
-cube_model <- lm(Y~poly(X, degree = 3), data = train_data)
+quad_model  <- lm(Y~poly(X, degree = 2, raw = T), data = train_data)
+cube_model <- lm(Y~poly(X, degree = 3, raw = T), data = train_data)
 
 # creating new data points to predict 
 new_data <- tibble(X = seq(min(train_data$X), max(train_data$X), length=100))
@@ -137,7 +136,6 @@ cat("MSE for Cubic Model: ", mse_cubic, "\n")
 ```
 
 The results are not to be expected because when the degrees increase the MSE increased as well. They should be less as the degree increases and the model becomes more flexible
-
 :::
 
 ## e. Optimal performance
@@ -170,7 +168,23 @@ The MSE scores obtained in part *d* came from one realization of training data. 
 -   Create kernel density or histogram plots of the resulting MSE values for each model.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+sim_num = 100
+
+# make a tibble to store results
+mse_f <- tibble(
+  mse_linear = numeric(sim_num),
+  mse_quad = numeric(sim_num),
+  mse_cube = numeric(sim_num)
+)
+
+set.seed(613)
+
+# repeating parts
+for (x in 1:100){
+  
+}
+```
 :::
 
 ## g. Best model
@@ -189,7 +203,7 @@ Write a function that implements the simulation in part *f*. The function should
 Add solution here
 :::
 
-## i. Performance when $\sigma=2$
+## i. Performance when $\sigma=2$s
 
 Use your function to repeat the simulation in part *f*, but use $\sigma=2$. Report the number of times each model was best (you do not need to produce any plots).
 
