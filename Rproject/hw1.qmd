@@ -169,9 +169,11 @@ The MSE scores obtained in part *d* came from one realization of training data. 
 
 ::: {.callout-note title="Solution"}
 ```{r}
+# define simulation number 
 sim_num = 100
 
 # make a tibble to store results
+library(tidyverse)
 mse_f <- tibble(
   mse_linear = numeric(sim_num),
   mse_quad = numeric(sim_num),
@@ -181,18 +183,62 @@ mse_f <- tibble(
 set.seed(613)
 
 # repeating parts
-for (x in 1:100){
+for (x in 1:sim_num){
+  # generate new data
+  new_data <- sim_func(100, 3)
   
+  # fit new models
+  linear_model <- lm(Y ~X, data = new_data)
+  quad_model  <- lm(Y~poly(X, degree = 2, raw = T), data = new_data)
+  cube_model <- lm(Y~poly(X, degree = 3, raw = T), data = new_data)
+  
+  # predict using train_data
+  train_data <- train_data %>%
+    mutate(
+      linear_pred = predict(linear_model, newdata = train_data),
+      quad_pred = predict(quad_model, newdata = train_data),
+      cube_pred = predict(cube_model, newdata = train_data)
+    )
+  
+  # calculating MSE
+  mse_f$mse_linear[x] <- mean((train_data$Y - train_data$linear_pred)^2)
+  mse_f$mse_quad[x] <- mean((train_data$Y - train_data$quad_pred)^2)
+  mse_f$mse_cube[x] <- mean((train_data$Y - train_data$cube_pred)^2)
 }
+
+# transform the long table to short
+mse_f_long <- mse_f %>%
+  pivot_longer(cols=everything(), names_to = "model", values_to = "mse")
+
+# plotting
+ggplot(data = mse_f_long, aes(x = mse, fill=model)) +
+  geom_density(alpha = 0.4)
 ```
 :::
+
+
 
 ## g. Best model
 
 Show a count of how many times each model was the best. That is, out of the 100 simulations, count how many times each model had the lowest MSE.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+mse_f <- mse_f %>%
+  rowwise() %>%
+  mutate(best_model = case_when(
+    mse_linear == min(c(mse_linear, mse_quad, mse_cube)) ~ "Linear",
+    mse_quad == min(c(mse_linear, mse_quad, mse_cube)) ~ "Quadratic",
+    mse_cube == min(c(mse_linear, mse_quad, mse_cube)) ~ "Cubic"
+  ))
+
+# conuting
+best_model_count <- mse_f %>%
+  group_by(best_model) %>%
+  summarise(count = n())
+
+best_model_count
+```
 :::
 
 ## h. Function to implement simulation
@@ -200,7 +246,45 @@ Add solution here
 Write a function that implements the simulation in part *f*. The function should have arguments for i) the size of the training data $n$, ii) the standard deviation of the random error $\sigma$, and iii) the test data. Use the same `set.seed(613)`.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+simulate_mse <- function(n, sigma, test_data, sim_num = 100){
+  # create tibble
+  mse_f <- tibble(
+    mse_linear = numeric(sim_num),
+    mse_quad = numeric(sim_num),
+    mse_cube = numeric(sim_num)
+  )
+  
+  # set seed
+  set.seed(613)
+  
+  # Repeating the simulation
+  for (x in 1:sim_num) {
+    # Generate new training data of size n with the specified sigma
+    new_data <- sim_func(n, sigma)
+    
+    # Fit models to the new training data
+    linear_model <- lm(Y ~ X, data = new_data)
+    quad_model  <- lm(Y ~ poly(X, degree = 2, raw = TRUE), data = new_data)
+    cube_model  <- lm(Y ~ poly(X, degree = 3, raw = TRUE), data = new_data)
+    
+    # Predict on the fixed test data (test_data)
+    test_data <- test_data %>%
+      mutate(
+        linear_pred = predict(linear_model, newdata = test_data),
+        quad_pred = predict(quad_model, newdata = test_data),
+        cube_pred = predict(cube_model, newdata = test_data)
+      )
+    
+    # Calculate MSE for each model on the test data
+    mse_f$mse_linear[x] <- mean((test_data$Y - test_data$linear_pred)^2)
+    mse_f$mse_quad[x] <- mean((test_data$Y - test_data$quad_pred)^2)
+    mse_f$mse_cube[x] <- mean((test_data$Y - test_data$cube_pred)^2)
+  }
+  
+  return(mse_f)
+}
+```
 :::
 
 ## i. Performance when $\sigma=2$s
@@ -210,7 +294,31 @@ Use your function to repeat the simulation in part *f*, but use $\sigma=2$. Repo
 -   Be sure to generate new test data with ($n = 10000$, $\sigma = 2$, using `seed = 612`).
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+# generate new test_data
+set.seed(612)
+test_data_sigma2 <- sim_func(1000, 2)
+
+# run the simulation 
+mse_results_sigma2 <- simulate_mse(n=100, sigma = 2, test_data = test_data_sigma2)
+
+# copying parts from g
+mse_results_sigma2 <- mse_results_sigma2 %>%
+  rowwise() %>%
+  mutate(best_model = case_when(
+    mse_linear == min(c(mse_linear, mse_quad, mse_cube)) ~ "Linear",
+    mse_quad == min(c(mse_linear, mse_quad, mse_cube)) ~ "Quadratic",
+    mse_cube == min(c(mse_linear, mse_quad, mse_cube)) ~ "Cubic"
+  ))
+
+# count
+best_model_count_sigma2 <- mse_results_sigma2 %>%
+  group_by(best_model) %>%
+  summarise(count = n())
+
+best_model_count_sigma2
+
+```
 :::
 
 ## j. Performance when $\sigma=4$ and $n=300$
@@ -220,7 +328,27 @@ Repeat *i*, but now use $\sigma=4$ and $n=300$.
 -   Be sure to generate new test data with ($n = 10000$, $\sigma = 4$, using `seed = 612`).
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+set.seed(612)
+test_data_sigma4 <- sim_func(10000, 4)
+
+# run sim
+mse_results_sigma4 <- simulate_mse(n = 300, sigma = 4, test_data = test_data_sigma4)
+
+mse_results_sigma4 <- mse_results_sigma4 %>%
+  rowwise() %>%
+  mutate(best_model = case_when(
+    mse_linear == min(c(mse_linear, mse_quad, mse_cube)) ~ "Linear",
+    mse_quad == min(c(mse_linear, mse_quad, mse_cube)) ~ "Quadratic",
+    mse_cube == min(c(mse_linear, mse_quad, mse_cube)) ~ "Cubic"
+  ))
+
+best_model_count_sigma4 <- mse_results_sigma4 %>%
+  group_by(best_model) %>%
+  summarise(count = n())
+
+best_model_count_sigma4
+```
 :::
 
 ## k. Understanding
