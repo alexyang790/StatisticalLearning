@@ -356,5 +356,9 @@ best_model_count_sigma4
 Describe the effects $\sigma$ and $n$ has on selection of the best model? Why is the *true* model form (i.e., quadratic) not always the *best* model to use when prediction is the goal?
 
 ::: {.callout-note title="Solution"}
-Add solution here
+When $\sigma$ becomes larger the data becomes more random and this allows simpler models like linear models perform better because they simply don't overfit as much as the complicated models. 
+
+When $n$ or sample size is small like we have seen in part c, more complicated models might overfit models and produce a less accurate model while simple models like the linear model performs better. However when the sample size increase largely (for example from 100 to 10000), the more complicated models will start performing better bceause overfitting is reduced. 
+
+The reason that the true model form is not always the best model is because depending on the data sample size and randomness (or noise and data limitation) a simpler model might reduce prediction error by minimizing the overfitting issue. 
 :::
