@@ -6,6 +6,7 @@
       {
         "id": "261d81bd981ea111",
         "type": "tabs",
+        "dimension": 59.02578796561605,
         "children": [
           {
             "id": "a4438d48b55c3bd5",
@@ -13,7 +14,26 @@
             "state": {
               "type": "pdf",
               "state": {
-                "file": "Slides/bootstrap.pdf"
+                "file": "Slides/3a_bootstrap.pdf"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "4437935e6e5a0827",
+        "type": "tabs",
+        "dimension": 40.97421203438395,
+        "children": [
+          {
+            "id": "6fe5545f0be7ad3d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ClassNotes/3a Resampling - Bootstrap and Splines.md",
+                "mode": "source",
+                "source": false
               }
             }
           }
@@ -67,7 +87,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5
+    "width": 239.5,
+    "collapsed": true
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -83,7 +104,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/bootstrap.pdf",
+                "file": "Slides/3a_bootstrap.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,7 +121,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/bootstrap.pdf",
+                "file": "Slides/3a_bootstrap.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -123,7 +144,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/bootstrap.pdf"
+                "file": "Slides/3a_bootstrap.pdf"
               }
             }
           },
@@ -136,7 +157,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -157,24 +178,31 @@
   },
   "active": "a4438d48b55c3bd5",
   "lastOpenFiles": [
-    "ClassNotes/2b Supervised Learning II.md",
+    "Screenshots/Pasted image 20240916201106.png",
+    "Screenshots/Pasted image 20240916200720.png",
+    "Screenshots/Pasted image 20240916200643.png",
+    "Screenshots/Pasted image 20240916200540.png",
+    "Screenshots",
+    "untitled folder",
+    "HomeworkSolutions/hw1_self_grade.txt.sb-65e10ffe-MjB2eV",
+    "HomeworkSolutions/hw1_self_grade.txt",
+    "HomeworkSolutions/hw1_soln.html",
+    "HomeworkSolutions",
     "ClassNotes/3a Resampling - Bootstrap and Splines.md",
+    "Slides/3a_bootstrap.pdf",
+    "Pasted image 20240916201800.png",
+    "Pasted image 20240916201106.png",
+    "Pasted image 20240916200720.png",
+    "Pasted image 20240916200643.png",
+    "Pasted image 20240916200540.png",
+    "Slides/2b_supervised_2-notes.pdf",
+    "Slides/2a_supervised_1-notes.pdf",
+    "Slides/1b_Rintro-notes.pdf",
+    "ClassNotes/2b Supervised Learning II.md",
     "ClassNotes/2a Supervised Learning I.md",
-    "Rproject/hw1_files/libs/quarto-html/tippy.umd.min.js",
-    "Rproject/hw1_files/libs/quarto-html/tippy.css",
-    "Rproject/hw1_files/libs/quarto-html/quarto.js",
-    "Rproject/hw1_files/libs/quarto-html/quarto-syntax-highlighting.css",
-    "Rproject/hw1_files/libs/quarto-html/popper.min.js",
-    "Rproject/hw1_files/libs/quarto-html/anchor.min.js",
-    "Rproject/hw1_files/libs/clipboard/clipboard.min.js",
-    "Rproject/hw1_files/libs/bootstrap/bootstrap.min.js",
-    "Rproject/hw1_files/libs/bootstrap/bootstrap.min.css",
-    "Rproject/hw1_files/libs/bootstrap/bootstrap-icons.woff",
     "Rproject/hw1_files/figure-html/unnamed-chunk-6-1.png",
     "Rproject/hw1_files/figure-html/unnamed-chunk-3-1.png",
-    "Rproject/hw1_files/figure-html/unnamed-chunk-2-1.png",
     "Books/Books.md",
-    "Screenshot 2024-09-08 at 14.12.31.png",
     "LinearRegressionNotes.md",
     "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md"
   ]

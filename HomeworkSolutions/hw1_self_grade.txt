@@ -1,0 +1,45 @@
+Name: Alex Yang
+Computing ID: zy7ts
+
+# Self-grading for Homework 1 DS6030 Statistical Learning
+
+> instructions: Indicate which questions weren't completed or weren't answered correctly; If you are unsure, just leave a note for the TA.
+
+## Problem 1
+### a
+- correct
+- note: solves the problem different approaches
+
+### b
+- correct
+
+### c
+- correct
+- note: redundant codes need some clean up and restructuring
+
+### d
+- correct
+- note: redundant codes need some clean up and restructuring
+
+### e
+- correct
+
+### f
+- correct 
+- notes: could shorten the code a little 
+
+### g
+- correct
+
+### h
+- correct
+
+### I
+- **INCORRECT** 
+- *note: I got a different result compared to the solution provided. However, my solution for part g and part j are the correct and I used the same function. Could you please help me see where it went wrong for this question? I could not find anything wrong.
+
+### j 
+- correct
+
+### k
+- correct

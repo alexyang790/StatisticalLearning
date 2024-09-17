@@ -34,8 +34,9 @@ Y &= 1 + 2x + 5\sin(5x) + \epsilon \\
 \end{align*}
 
 ::: {.callout-note title="Solution"}
-
-Add solution here
+```{r}
+gen_func <- function()
+```
 
 :::
 
