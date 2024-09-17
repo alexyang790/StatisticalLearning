@@ -35,7 +35,17 @@ Y &= 1 + 2x + 5\sin(5x) + \epsilon \\
 
 ::: {.callout-note title="Solution"}
 ```{r}
-gen_func <- function()
+# simulate x
+sim_x <- function(n) runif(n, min = 0, max = 2)
+
+# define true function
+f <- function(x) 1+2*x+5*sin(5*x)
+
+# simulate y 
+sim_y <- function(x, sd) {
+  n <- length(x)
+  f(x) + rnorm(n, sd = sd)
+}
 ```
 
 :::
@@ -46,7 +56,26 @@ Simulate $n=100$ realizations from these distributions. Produce a scatterplot an
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+# set number of simulations and sd
+n = 100
+sd = 2.5
+
+# set seed
+set.seed(211)
+
+# simulate
+x = sim_x(n)
+y = sim_y(x, sd = sd)
+
+# use tibble to form data
+data <- tibble(x, y)
+
+# plotting 
+ggplot(data = data, aes(x,y)) +
+  geom_point()+
+  geom_function(fun = f, color = "blue")
+```
 
 :::
 
@@ -57,7 +86,31 @@ Fit a 5th degree polynomial. Produce a scatterplot and draw the *estimated* regr
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+# fit the 5th poly model
+fit5 <- lm(y~poly(x, 5))
+
+# make estimates
+xseq <- seq(0, 2, length = 200) 
+yhat5 <- predict(fit5, tibble(x=xseq))
+
+# make data for plotting and convert to long
+pred.data <- tibble(
+  x = xseq,
+  y = yhat5
+) %>%
+  pivot_longer(
+    cols = -x,
+    names_to = "model",
+    values_to = "y"
+  )
+
+# produce graphs
+ggplot(data = tibble(x,y), aes(x=x, y=y)) + 
+  geom_point() +
+  geom_line(data = pred.data, color = "blue")
+```
+
 
 :::
 
@@ -71,7 +124,36 @@ Make 200 bootstrap samples. For each bootstrap sample, fit a 5th degree polynomi
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+# setting up 
+M = 200 # number of bootstrap samples
+set.seed(212) # setting seeds
+n = 100
+eval_pts = seq(0, 2, length = 100) 
+
+# creating a list to store predictions from bootstrap
+bootstrap_predictions <- matrix(NA, nrow = length(eval_pts), ncol = M)
+
+# bootstrapping
+for (m in 1:M){
+  ind <- sample(n, replace = T) 
+  data_boot <- data[ind, ]
+  m_boot <- lm(y~poly(x, degree = 5), data = data_boot)
+  bootstrap_predictions[, m] <- predict(m_boot, newdata = tibble(x = eval_pts))
+}
+
+# Convert bootstrap predictions into a data frame
+bootstrap_df <- as_tibble(bootstrap_predictions) %>%
+  mutate(eval_pts = eval_pts) %>%
+  pivot_longer(cols = -eval_pts, names_to = "bootstrap", values_to = "y")
+
+# Plot original data and bootstrap curves
+ggplot(data = tibble(x, y), aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(data = bootstrap_df, aes(x = eval_pts, y = y, group = bootstrap), color = "red", alpha = 0.3) +
+  labs(title = "Bootstrap 5th Degree Polynomial Fits", x = "X", y = "Y")
+```
+
 
 :::
     
@@ -83,7 +165,20 @@ Calculate the pointwise 95% confidence intervals from the bootstrap samples. Tha
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+ci <- bootstrap_df |>
+  group_by(eval_pts)|>
+  summarise(
+    lower = quantile(y, probs = 0.025),
+    upper = quantile(y, probs = 0.975)
+  )
+  
+ggplot(data = tibble(x, y), aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(data = bootstrap_df, aes(x = eval_pts, y = y, group = bootstrap), color = "red", alpha = 0.3) +
+  labs(title = "Bootstrap 5th Degree Polynomial Fits", x = "X", y = "Y") +
+  geom_ribbon(data = ci, aes(x = eval_pts, ymin = lower, ymax = upper), alpha = 0.4, color = "blue", fill = "blue")
+```
 
 :::
 
