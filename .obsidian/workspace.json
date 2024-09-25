@@ -4,36 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "261d81bd981ea111",
+        "id": "9d130442ca00beaa",
         "type": "tabs",
-        "dimension": 59.02578796561605,
         "children": [
           {
-            "id": "a4438d48b55c3bd5",
+            "id": "66503e24e2f5fed5",
             "type": "leaf",
             "state": {
               "type": "pdf",
               "state": {
-                "file": "Slides/3a_bootstrap.pdf"
-              }
-            }
-          }
-        ]
-      },
-      {
-        "id": "4437935e6e5a0827",
-        "type": "tabs",
-        "dimension": 40.97421203438395,
-        "children": [
-          {
-            "id": "6fe5545f0be7ad3d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "ClassNotes/3a Resampling - Bootstrap and Splines.md",
-                "mode": "source",
-                "source": false
+                "file": "Slides/4a_penalized-regression.pdf"
               }
             }
           }
@@ -87,8 +67,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5,
-    "collapsed": true
+    "width": 239.5
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -104,7 +83,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/3a_bootstrap.pdf",
+                "file": "Slides/4a_penalized-regression.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -121,7 +100,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/3a_bootstrap.pdf",
+                "file": "Slides/4a_penalized-regression.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -144,7 +123,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/3a_bootstrap.pdf"
+                "file": "Slides/4a_penalized-regression.pdf"
               }
             }
           },
@@ -161,7 +140,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -175,32 +155,70 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "25b567a6fee63ac3",
+  "floating": {
+    "id": "4fee1ccbc21df181",
+    "type": "floating",
+    "children": [
+      {
+        "id": "3b70a8d2b177a691",
+        "type": "window",
+        "children": [
+          {
+            "id": "ef9ea0c16ac72d26",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "a522534d15eac6fb",
+                "type": "leaf",
+                "state": {
+                  "type": "pdf",
+                  "state": {
+                    "file": "Slides/4a_penalized-regression.pdf"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": -938,
+        "y": 86,
+        "width": 874,
+        "height": 801,
+        "maximize": false,
+        "zoom": 0
+      }
+    ]
+  },
+  "active": "a522534d15eac6fb",
   "lastOpenFiles": [
-    "Screenshots/Pasted image 20240916201106.png",
-    "Screenshots/Pasted image 20240916200720.png",
-    "Screenshots/Pasted image 20240916200643.png",
-    "Screenshots/Pasted image 20240916200540.png",
-    "Screenshots",
-    "untitled folder",
-    "HomeworkSolutions/hw1_self_grade.txt.sb-65e10ffe-MjB2eV",
-    "HomeworkSolutions/hw1_self_grade.txt",
-    "HomeworkSolutions/hw1_soln.html",
-    "HomeworkSolutions",
+    "Rproject/hw3_files/libs/quarto-html/tippy.umd.min.js",
+    "Rproject/hw3_files/libs/quarto-html/tippy.css",
+    "Rproject/hw3_files/libs/quarto-html/quarto.js",
+    "Rproject/hw3_files/libs/quarto-html/quarto-syntax-highlighting.css",
+    "Rproject/hw3_files/libs/quarto-html/popper.min.js",
+    "Rproject/hw3_files/libs/quarto-html/anchor.min.js",
+    "Rproject/hw3_files/libs/clipboard/clipboard.min.js",
+    "Rproject/hw3_files/libs/bootstrap/bootstrap.min.js",
+    "Rproject/hw3_files/libs/bootstrap/bootstrap.min.css",
+    "Rproject/hw3_files/libs/bootstrap/bootstrap-icons.woff",
+    "Rproject/hw3_files/libs/bootstrap/bootstrap-icons.css",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-9-2.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-9-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-7-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-6-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-5-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-4-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-3-1.png",
+    "Rproject/hw2_files/figure-html/unnamed-chunk-2-1.png",
+    "ClassNotes/4a Penalized Regression.md",
+    "Screenshots/Pasted image 20240916201800.png",
+    "ClassNotes/3b Cross Validation and Model Selection.md",
+    "Screenshots/Pasted image 20240918185534.png",
+    "Untitled.md",
     "ClassNotes/3a Resampling - Bootstrap and Splines.md",
-    "Slides/3a_bootstrap.pdf",
-    "Pasted image 20240916201800.png",
-    "Pasted image 20240916201106.png",
-    "Pasted image 20240916200720.png",
-    "Pasted image 20240916200643.png",
-    "Pasted image 20240916200540.png",
-    "Slides/2b_supervised_2-notes.pdf",
-    "Slides/2a_supervised_1-notes.pdf",
-    "Slides/1b_Rintro-notes.pdf",
     "ClassNotes/2b Supervised Learning II.md",
     "ClassNotes/2a Supervised Learning I.md",
-    "Rproject/hw1_files/figure-html/unnamed-chunk-6-1.png",
-    "Rproject/hw1_files/figure-html/unnamed-chunk-3-1.png",
     "Books/Books.md",
     "LinearRegressionNotes.md",
     "Excalidraw/Drawing 2024-09-05 14.24.34.excalidraw.md"

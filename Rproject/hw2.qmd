@@ -201,7 +201,76 @@ Use $10$-fold cross-validation to find the value of $k$ (i.e., neighborhood size
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+# generate data 
+n = 100
+sd = 2.5
+set.seed(221)
+x = sim_x(n)
+y = sim_y(x, sd = sd)
+data <- tibble(x, y)
+
+############ 
+
+library(tidymodels)
+
+# create the 10 folds 
+cv_folds <- vfold_cv(data, v = 10)
+
+# make the model
+knn_model <- nearest_neighbor(weight_func = "rectangular", neighbors = tune()) |>
+  set_engine("kknn") |>
+  set_mode("regression")
+
+# make the recipe
+knn_recipe <- recipe(y~x, data = data)
+
+# create workflow
+knn_workflow <- workflow() %>%
+  add_model(knn_model) %>%
+  add_recipe(knn_recipe)
+
+############ 
+
+# define grid to test
+k_grid <- tibble(neighbors = 3:40)
+
+# Tune the model using cross-validation and the defined grid
+knn_tune_results <- tune_grid(
+  knn_workflow,
+  resamples = cv_folds,
+  grid = k_grid,
+  metrics = metric_set(rmse) 
+)
+
+############ 
+
+# Collect the tuning results
+results <- knn_tune_results |>
+  collect_metrics(summarize = F) |>
+  transmute(
+    fold = id,
+    k_neighbor = neighbors,
+    mse = .estimate^2,
+  ) |>
+  arrange(fold, k_neighbor) |>
+  group_by(k_neighbor) |>
+  summarize(
+    fold = n(),
+    se = sd(mse)/sqrt(n),
+    mse = mean(mse)
+  ) |>
+  arrange(mse)
+
+head(results)
+
+############ 
+
+ggplot(data = results, aes(x = k_neighbor, y = mse)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin = mse-se, ymax = mse+se), width = 0.2) 
+```
 
 :::
 
@@ -212,8 +281,18 @@ The $k$ (number of neighbors) in a kNN model determines the effective degrees of
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+results = results %>% mutate(edf = (nrow(data)*9/10)/k_neighbor)
+slice_min(results, mse)
 
+#plotting 
+ggplot(data = results, aes(x = edf, y = mse)) +
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin = mse-se, ymax = mse+se))
+```
+
+The optimal k is 9 with an estimated edf = 10
 :::
 
 ## c. Choose $k$
@@ -222,7 +301,7 @@ After running cross-validation, a final model fit from *all* of the training dat
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+I would choose a k value of 9 because it has the most amount of edf while retaining the least amonut of mse as per part a and part b stated in the graphs
 
 :::
 
@@ -235,7 +314,46 @@ Now we will see how well cross-validation performed. Simulate a test data set of
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+#### I can't figure out how to use tidymodels for this so I wrote a function 
+n = 50000
+sd = 2.5
+set.seed(223)
+x = sim_x(n)
+y = sim_y(x, sd = sd)
+test_data <- tibble(x, y)
+
+evaluate_knn <- function(train_data, test_data, k_values) {
+  # Initialize a vector to store 
+  mse_values <- numeric(length(k_values))
+  
+  # Loop 
+  for (i in seq_along(k_values)) {
+    neighbors <- k_values[i]
+    
+    # KNN regression
+    knn_model <- FNN::knn.reg(
+      train = select(train_data, x),
+      y = train_data$y,
+      test = select(test_data, x),
+      k = neighbors
+    )
+    
+    # residuals and mse
+    residuals <- test_data$y - knn_model$pred
+    mse_values[i] <- mean(residuals^2)
+  }
+  
+  # to return
+  tibble(k = k_values, mse = mse_values, n_eval = nrow(test_data))
+}
+
+test_result = evaluate_knn(data, test_data, k = 3:40) %>% 
+  mutate(edf = nrow(data) / k)
+
+test_result |> arrange(mse) |> head()
+```
+The optimal k is 11 and the edf is 9.09
 
 :::
 
@@ -248,7 +366,26 @@ Plot both the cross-validation estimated and (true) error calculated from the te
     
 ::: {.callout-note title="Solution"}
 
-Add solution here
+```{r}
+bind_rows(
+  cv = results %>% rename(k = k_neighbor), 
+  test = test_result, 
+  .id="error"
+  ) %>% 
+  ggplot(aes(edf, mse, color=error)) + 
+  geom_point() + geom_line() +
+  labs(title="EDF on x-axis")
+
+bind_rows(
+  cv = results %>% rename(k = k_neighbor), 
+  test = test_result, 
+  .id="error"
+  ) %>% 
+  ggplot(aes(k, mse, color=error)) + 
+  geom_point() + geom_line() + 
+  labs(title="k on x-axis")
+```
+
 
 :::
     
@@ -258,8 +395,7 @@ Based on the plots from *e*, does it appear that cross-validation worked as inte
 
 ::: {.callout-note title="Solution"}
 
-Add solution here
-
+Based on the plots from e it does appear that cv is working as intended. I'm not sure about the second part because I'm having a hard time reading and understanding the graphs. I will refer to the answer key later to review.
 :::
 
 
