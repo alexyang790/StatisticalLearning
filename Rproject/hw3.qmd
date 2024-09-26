@@ -1,6 +1,6 @@
 ---
 title: "Homework #3: Penalized Regression" 
-author: "**Your Name Here**"
+author: "**Alex Yang**"
 format: ds6030hw-html
 ---
 
@@ -66,7 +66,92 @@ for(m in 1:M) {
 ## a. Code for the simulation and performance results
 
 ::: {.callout-note title="Solution"}
-Add solution here
+
+```{r}
+library(glmnet)
+
+#-- Settings
+n_train =150       # number of training obs
+n_test = 50        # number of test obs
+K = 10             # number of CV folds
+alpha = 1         # glmnet tuning alpha (1 = lasso, 0 = ridge)
+M = 100           # number of simulations
+  
+#-- Data Generating Function
+getData <- function(n) {
+  temp_data <- mlbench.friedman1(n, sd=2)
+  x <- as.data.frame(temp_data$x)
+  y <- temp_data$y
+  list(x=x, y=y)
+}
+
+#-- Simulations
+set.seed(123)
+
+# generate results to store results
+results <- tibble( 
+  min_rmse = numeric(M),
+  min_1se = numeric(M))
+
+for(m in 1:M) {
+
+# 1. Generate Training Data
+  train_data <- getData(n_train)
+  x_train <- as.matrix(train_data$x)
+  y_train <- train_data$y
+  
+# 2. Build Training Models using cross-validation, e.g., cv.glmnet()
+  train_model = 
+    cv.glmnet(x_train,y_train,
+              alpha = alpha,
+              nfolds = K)
+  
+# 3. get lambda that minimizes cv error and 1 SE rule
+  lambda_min = train_model$lambda.min
+  lambda_1se <- train_model$lambda.1se
+  
+# 4. Generate Test Data
+  test_data <- getData(n_test)
+  x_test <- as.matrix(test_data$x)
+  y_test <- test_data$y
+  
+# 5. Predict y values for test data (for each model: min, 1SE)
+  y_hat_min <- predict(
+    train_model,
+    newx = x_test,
+    s = lambda_min
+  )
+  
+  y_hat_1se <- predict(
+    train_model,
+    newx = x_test,
+    s = lambda_1se
+  )
+  
+# 6. Evaluate predictions
+  lambda_min_rmse <- sqrt(mean((y_hat_min-y_test)^2))
+  lambda_1se_rmse <- sqrt(mean((y_hat_1se-y_test)^2))
+  
+# storing results 
+  results[m, ] <- tibble(
+    min_rmse = lambda_min_rmse,
+    min_1se = lambda_1se_rmse
+  )
+}
+
+#-- Compare
+model_results <- t.test(
+  results$min_rmse, results$min_1se, paired = TRUE
+)
+print(model_results)
+
+# compare performance of the approaches / Statistical Test
+results |> 
+  pivot_longer(cols = c(min_rmse, min_1se), names_to = "Lambda_Method", values_to = "RMSE") |>
+  ggplot(aes(x= Lambda_Method, y= RMSE)) +
+  geom_boxplot()
+```
+
 :::
 
 ## b. Hypothesis test
