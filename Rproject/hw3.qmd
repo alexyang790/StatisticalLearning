@@ -159,7 +159,8 @@ results |>
 Provide results and discussion of a hypothesis test comparing $\lambda_{\rm min}$ and $\lambda_{\rm 1SE}$.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+
+from the hypothesis test we can see that the use of lambda_min is better than lambda_1se because the p-value is close to 0 which allows us to reject the hnull hypothesis which states that there is not a difference in terms of RMSE using lambda_min and lambda_1se. The confidence interval which is smaller than zero on both ends also futher supports the argument.
 :::
 
 # Problem 2 Prediction Contest: Real Estate Pricing
@@ -177,7 +178,57 @@ Load the data and create necessary data structures for running *elastic net*.
 - Note: there are some categorical predictors so at the least you will have to convert those to something numeric (e.g., one-hot or dummy coding).
 
 ::: {.callout-note title="Solution"}
-Add solution here
+
+```{r}
+train_data_long <- train_data %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
+
+ggplot(train_data_long, aes(x = value)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black", alpha = 0.5) +
+  facet_wrap(~ variable, scales = "free", ncol = 4) +
+  theme_minimal()
+```
+
+
+```{r}
+# loading the data
+data_dir = 'https://mdporter.github.io/teaching/data/'
+train_data <- read_csv(file.path(data_dir, 'realestate-train.csv'))
+test_data <- read_csv(file.path(data_dir, 'realestate-test.csv'))
+
+# glimpse(train_data)
+# categorical columns 
+cat_cols <- c('CentralAir', 'BldgType', 'HouseStyle')
+
+library(fastDummies)
+# dummy vars change 
+train_data <- dummy_cols(train_data,
+                         select_columns = cat_cols,
+                         remove_first_dummy = TRUE,
+                         remove_selected_columns = TRUE)
+
+test_data <- dummy_cols(test_data,
+                        select_columns = cat_cols,
+                        remove_first_dummy = TRUE,
+                        remove_selected_columns = TRUE)
+
+# feature engineering 
+train_data <- train_data |>
+  mutate(log_age =log(Age),
+         log_sqfeet = log(SqFeet)) |>
+  select(-c(Age, SqFeet))
+
+test_data <- test_data |>
+  mutate(log_age =log(Age),
+         log_sqfeet = log(SqFeet)) |>
+  select(-c(Age, SqFeet))
+  
+# separate y and x
+y_train <- train_data$price|> as.matrix()
+x_train<- train_data |> select(-price)|> as.matrix()
+x_test <- test_data |> as.matrix()
+```
+
 :::
 
 ## b. Fit elastic net model
@@ -190,7 +241,49 @@ Use an *elastic net* model to predict the `price` of the test data.
 - Describe how you choose those tuning parameters
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+library(glmnet)
+
+
+alpha_values <- seq(0, 1, by=0.1) #loop over alpha values
+results <- data.frame(alpha = numeric(), lambda_min = numeric(), lambda_1se = numeric(), cv_mse_optimal = numeric())
+
+set.seed(213)
+for (alpha in alpha_values) {
+  cv_model <- cv.glmnet(
+    x_train, y_train,
+    alpha = alpha,
+    nfolds = 10,
+    type.measure = "mse",
+    standardize = TRUE 
+  ) 
+  
+  results<- rbind(results, data.frame(
+    alpha = alpha, 
+    lambda_min = cv_model$lambda.min,
+    lambda_1se = cv_model$lambda.1se,
+    cv_mse_optimal = min(cv_model$cvm)
+  ))
+}
+
+# best alpha and lambda based on lowest cv_mse_optimal
+best_outcome <- results |> 
+  filter(cv_mse_optimal == min(cv_mse_optimal))
+
+best_alpha <- best_outcome$alpha
+best_lambda <- best_outcome$lambda_min
+
+best_model <- glmnet(
+  x_train, y_train,
+  alpha = best_alpha,
+  lambda = best_lambda,
+  standardize = TRUE
+)
+
+cat("Best alpha and lambda are:", best_alpha, "and", best_lambda, "\n")
+```
+
+I chose the tuning parameters by looping through all the possible alpha values using seq(0,1,step=0.1) and stored all the model outcomes using those values into a dataframe along with the cross-validated smallest mean sqaured error. I then filtered to find out the alpha and lambda that has the smallest cv_mse_optimal to find out the optimal alpha and lambda
 :::
 
 ## c. Submit predictions
@@ -200,7 +293,15 @@ Submit a .csv file (ensure comma separated format) named `lastname_firstname.csv
 - You will receive credit for a proper submission; the top five scores will receive 2 bonus points.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+
+```{r}
+y_hat <- predict(best_model, x_test)
+submission_df <- data.frame(yhat = y_hat) |>
+  rename(yhat = s0)
+
+write.csv(submission_df, "Yang_Alex.csv", row.names = FALSE)
+```
+
 :::
 
 ## d. Report anticpated performance
@@ -208,5 +309,9 @@ Add solution here
 Report the anticipated performance of your method in terms of RMSE. We will see how close your performance assessment matches the actual value. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+anticipated_rmse <- sqrt(min(results$cv_mse_optimal))
+cat("Anticipated RMSE:", anticipated_rmse, "\n")
+```
+
 :::
