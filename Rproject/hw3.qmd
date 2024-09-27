@@ -179,16 +179,6 @@ Load the data and create necessary data structures for running *elastic net*.
 
 ::: {.callout-note title="Solution"}
 
-```{r}
-train_data_long <- train_data %>%
-  pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
-
-ggplot(train_data_long, aes(x = value)) +
-  geom_histogram(bins = 30, fill = "blue", color = "black", alpha = 0.5) +
-  facet_wrap(~ variable, scales = "free", ncol = 4) +
-  theme_minimal()
-```
-
 
 ```{r}
 # loading the data
@@ -211,6 +201,16 @@ test_data <- dummy_cols(test_data,
                         select_columns = cat_cols,
                         remove_first_dummy = TRUE,
                         remove_selected_columns = TRUE)
+
+# EDA
+
+train_data_long <- train_data %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
+
+ggplot(train_data_long, aes(x = value)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black", alpha = 0.5) +
+  facet_wrap(~ variable, scales = "free", ncol = 4) +
+  theme_minimal()
 
 # feature engineering 
 train_data <- train_data |>
