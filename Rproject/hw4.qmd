@@ -1,6 +1,6 @@
 ---
 title: "Homework #4: Trees and Random Forest" 
-author: "**Your Name Here**"
+author: "**Alex Yang**"
 format: ds6030hw-html
 ---
 
@@ -25,14 +25,33 @@ library(modeldata)    # for the ames housing data
 
 # Problem 1: Tree splitting metrics for classification
 
-Consider the Gini index, classification error, and entropy impurity measures in a simple classification setting with two classes. 
+Consider the Gini index, classification error, and entropy impurity measures in a simple classification setting with two classes.
 
 Create a single plot that displays each of these quantities as a function of $p_m$, the estimated probability of an observation in node $m$ being from class 1. The x-axis should display $p_m$, ranging from 0 to 1, and the y-axis should display the value of the Gini index, classification error, and entropy.
 
 ::: {.callout-note title="Solution"}
+```{r}
+p_m <- seq(0, 1, by = 0.01)
 
-Solution here
+# measures calculation
+gini <- p_m*(1-p_m)
+classification_error <- 1 - pmax(p_m, 1 - p_m)
+entropy <- -p_m * log2(p_m) - (1 - p_m) * log2(1 - p_m)
 
+p1_data <- tibble(
+  p_m = p_m,
+  gini = gini,
+  class_error = classification_error,
+  entropy = entropy
+)
+
+p1_data_long <- p1_data |>
+  pivot_longer(cols = c(gini, class_error, entropy), names_to = "measures", values_to = "values")
+
+ggplot(p1_data_long, aes(x=p_m, y= values, color = measures)) +
+  geom_line()+
+  theme_minimal()
+```
 :::
 
 # Problem 2: Combining bootstrap estimates
@@ -48,7 +67,7 @@ Suppose we produce ten bootstrapped samples from a data set containing red and g
 ISLR 8.2 describes the *majority vote* approach for making a hard classification from a set of bagged classifiers. What is the final classification for this example using majority voting?
 
 ::: {.callout-note title="Solution"}
-Solution here
+We are trying to predict red vs green classes and we are given class is red probability. six of the estimates are below 0.5 and four are above. Because of that, the final classification using majority voting is "Green" because more than half of the predictions have probability of less than 0.5
 :::
 
 ## b. Average Probability
@@ -56,54 +75,145 @@ Solution here
 An alternative is to base the final classification on the average probability. What is the final classification for this example using average probability?
 
 ::: {.callout-note title="Solution"}
-Solution here
+average probability = 0.535 because 0.535 is greater than 0.5 we say the final classification using average probability method is "Red"
 :::
 
-
-# Problem 3: Random Forest Tuning 
+# Problem 3: Random Forest Tuning
 
 Random forest has several tuning parameters that you will explore in this problem. We will use the `ames` housing data from the `modeldata` R package.
 
 There are several R packages for Random Forest. The `ranger::ranger()` function is much faster than `randomForest::randomForest()` so we will use this one.
 
+## a. Random forest (`ranger`) tuning parameters
 
-## a. Random forest (`ranger`) tuning parameters 
+List all of the random forest tuning parameters in the `ranger::ranger()` function. You don't need to list the parameters related to computation, special models (e.g., survival, maxstat), or anything that won't impact the predictive performance.
 
-List all of the random forest tuning parameters in the `ranger::ranger()` function. You don't need to list the parameters related to computation, special models (e.g., survival, maxstat), or anything that won't impact the predictive performance. 
-
-Indicate the tuning parameters you think will be most important to optimize? 
+Indicate the tuning parameters you think will be most important to optimize?
 
 ::: {.callout-note title="Solution"}
-Solution here
-:::
+1. mtry
+2. min.node.size
+3. splitrule
+4. num.trees
+5. min.obs
+6. sample.fraction
+8. replace
 
+I think the most important tuning parameters are mtry, min.node.size (or min bucket size), and num.trees(though we'd want this to be as big as possible so I won't be tuning this parameter)
+
+:::
 
 ## b. Implement Random Forest
 
-Use a random forest model to predict the sales price, `Sale_Price`. Use the default parameters and report the 10-fold cross-validation RMSE (square root of mean squared error). 
+Use a random forest model to predict the sales price, `Sale_Price`. Use the default parameters and report the 10-fold cross-validation RMSE (square root of mean squared error).
 
 ::: {.callout-note title="Solution"}
-Solution here
+
+```{r}
+library(modeldata)
+library(ranger)
+library(tidymodels)
+
+data(ames)
+
+# make folds
+n <- nrow(ames)
+folds <- sample(rep(1:10, length.out =n))
+
+# calculate RMSE
+rmse <- function(actual, predicted) {
+  sqrt(mean((actual-predicted)^2))
+}
+
+# 10 fold cv
+cv_errors <- numeric(10)
+for(i in 1:10) {
+  train <- ames[folds != i, ]
+  test <- ames[folds == i, ]
+
+  rf_model <- ranger(
+    Sale_Price ~ .,
+    data = train,
+    seed = 123
+  )
+  
+  predictions <- predict(rf_model, test)$predictions
+  cv_errors[i] <- rmse(test$Sale_Price, predictions)
+}
+
+mean_rmse <- mean(cv_errors)
+cat("10-fold CV RMSE:", round(mean_rmse, 4))
+```
+
 :::
-
-
 
 ## c. Random Forest Tuning
 
-Now we will vary the tuning parameters of `mtry` and `min.bucket` to see what effect they have on performance. 
+Now we will vary the tuning parameters of `mtry` and `min.bucket` to see what effect they have on performance.
 
-- Use a range of reasonable `mtry` and `min.bucket` values. 
-    - The valid `mtry` values are $\{1,2, \ldots, p\}$ where $p$ is the number of predictor variables. However the default value of `mtry = sqrt(p) =` `r sqrt(ncol(ames)-1) %>% floor()` is usually close to optimal, so you may want to focus your search around those values. 
-    - The default `min.bucket=1` will grow deep trees. This will usually work best if there are enough trees. But try some values larger and see how it impacts predictive performance. 
-    - Set `num.trees=1000`, which is larger than the default of 500. 
-- Use 5 times repeated out-of-bag (OOB) to assess performance. That is, run random forest 5 times for each tuning set, calculate the OOB MSE each time and use the average for the MSE associated with the tuning parameters.
-- Use a single plot to show the average MSE as a function of `mtry` and `min.bucket`.
-- Report the best tuning parameter combination. 
-- Note: random forest is a stochastic model; it will be different every time it runs due to the bootstrap sampling and random selection of features to consider for splitting. Set the random seed to control the uncertainty associated with the stochasticity. 
-- Hint: If you use the `ranger` package, the `prediction.error` element in the output is the OOB MSE. 
-
+-   Use a range of reasonable `mtry` and `min.bucket` values.
+    -   The valid `mtry` values are $\{1,2, \ldots, p\}$ where $p$ is the number of predictor variables. However the default value of `mtry = sqrt(p) =` `r sqrt(ncol(ames)-1) %>% floor()` is usually close to optimal, so you may want to focus your search around those values.
+    -   The default `min.bucket=1` will grow deep trees. This will usually work best if there are enough trees. But try some values larger and see how it impacts predictive performance.
+    -   Set `num.trees=1000`, which is larger than the default of 500.
+-   Use 5 times repeated out-of-bag (OOB) to assess performance. That is, run random forest 5 times for each tuning set, calculate the OOB MSE each time and use the average for the MSE associated with the tuning parameters.
+-   Use a single plot to show the average MSE as a function of `mtry` and `min.bucket`.
+-   Report the best tuning parameter combination.
+-   Note: random forest is a stochastic model; it will be different every time it runs due to the bootstrap sampling and random selection of features to consider for splitting. Set the random seed to control the uncertainty associated with the stochasticity.
+-   Hint: If you use the `ranger` package, the `prediction.error` element in the output is the OOB MSE.
 
 ::: {.callout-note title="Solution"}
-Solution here
-:::
 
+
+```{r}
+num_predictors <- ncol(ames) - 1
+
+# Set up mtry values and min bucket values, and create a tune grid for them
+mtry_vals <- c(floor(sqrt(num_predictors)), floor(num_predictors/3), 
+               floor(num_predictors/2), num_predictors)
+min_bucket_vals <- c(1, 5, 10, 20, 50)
+tune_grid <- expand.grid(mtry = mtry_vals, min_bucket = min_bucket_vals)
+
+# make tuning function
+forest_tuner <- function(mtry, min_bucket, data) {
+  rf <- ranger(
+    Sale_Price ~ .,
+    data = data,
+    num.trees = 1000,
+    mtry = mtry,
+    min.node.size = min_bucket,
+    seed = 123,
+    oob.error = TRUE
+  )
+  return(rf$prediction.error)
+}
+
+# make empty grid to store results
+results <- numeric(nrow(tune_grid))
+
+set.seed(123)  
+for(i in 1:nrow(tune_grid)) {
+  results[i] <- forest_tuner(
+    tune_grid$mtry[i],
+    tune_grid$min_bucket[i],
+    ames
+  )
+}
+
+tune_grid$mean_mse <- results
+tune_grid$rmse <- sqrt(tune_grid$mean_mse)
+
+ggplot(tune_grid, aes(x = mtry, y = min_bucket, fill = rmse)) +
+  geom_tile() +
+  scale_fill_viridis_c(direction = -1) +  
+  labs(x = "mtry", 
+       y = "min.bucket", 
+       title = "Tuning Results",
+       fill = "RMSE")
+
+best_params <- tune_grid[which.min(tune_grid$rmse), ]
+cat("\nBest Parameters:\n", "mtry:", best_params$mtry, "\n",
+    "min.bucket:", best_params$min_bucket, "\n",
+    "RMSE:", round(best_params$rmse, 2), "\n")
+```
+
+:::
