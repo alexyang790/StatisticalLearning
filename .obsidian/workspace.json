@@ -11,13 +11,28 @@
             "id": "d585605bed8f82a2",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "Slides/6b_classification_decision_theory.pdf"
+                "file": "ClassNotes/6b Classification - Decision Theory.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "096efecb9ab37140",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ClassNotes/7a Support Vector Machines.md",
+                "mode": "source",
+                "source": false
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -83,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Slides/6b_classification_decision_theory.pdf",
+                "file": "ClassNotes/7a Support Vector Machines.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Slides/6b_classification_decision_theory.pdf",
+                "file": "ClassNotes/7a Support Vector Machines.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -123,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Slides/6b_classification_decision_theory.pdf"
+                "file": "ClassNotes/7a Support Vector Machines.md"
               }
             }
           },
@@ -155,14 +170,20 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "d585605bed8f82a2",
+  "active": "096efecb9ab37140",
   "lastOpenFiles": [
-    "Slides/6a_classification - probability modeling.pdf",
+    "Slides/7a_support_vector_machine.pdf",
+    "Slides/svm.pdf",
+    "ClassNotes/3b Cross Validation and Model Selection.md",
+    "ClassNotes/3a Resampling - Bootstrap and Splines.md",
+    "ClassNotes/4a Penalized Regression.md",
+    "ClassNotes/5a Prediction Trees.md",
+    "ClassNotes/7a Support Vector Machines.md",
     "ClassNotes/6a Classification - Probability Modeling.md",
     "ClassNotes/6b Classification - Decision Theory.md",
-    "Slides/prob-modeling.pdf",
+    "Slides/6a_classification - probability modeling.pdf",
     "Slides/6b_classification_decision_theory.pdf",
-    "ClassNotes/5a Prediction Trees.md",
+    "Slides/prob-modeling.pdf",
     "Slides/5a Prediction Trees.pdf",
     "Screenshot 2024-09-28 at 13.42.01.png",
     "Slides/2a_supervised_1-notes.pdf",
@@ -171,7 +192,6 @@
     "LinearRegressionNotes.md",
     "Rproject/hw3_files/libs/bootstrap/bootstrap-icons.woff",
     "Rproject/hw3_files/libs/bootstrap/bootstrap.min.css",
-    "Rproject/hw3_files/libs/bootstrap/bootstrap.min.js",
     "Rproject/hw3_files/figure-html/unnamed-chunk-2-1.png",
     "Rproject/hw3_files/figure-html/unnamed-chunk-1-1.png",
     "Rproject/hw2_files/figure-html/unnamed-chunk-9-2.png",
@@ -181,9 +201,6 @@
     "Rproject/hw2_files/figure-html/unnamed-chunk-5-1.png",
     "Rproject/hw2_files/figure-html/unnamed-chunk-4-1.png",
     "Rproject/hw2_files/figure-html/unnamed-chunk-3-1.png",
-    "ClassNotes/4a Penalized Regression.md",
-    "ClassNotes/3b Cross Validation and Model Selection.md",
-    "ClassNotes/3a Resampling - Bootstrap and Splines.md",
     "ClassNotes/2b Supervised Learning II.md",
     "ClassNotes/2a Supervised Learning I.md",
     "Books/Books.md",
