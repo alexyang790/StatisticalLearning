@@ -54,25 +54,40 @@ Use an elastic net penalty (including lasso and ridge) (your choice).
 - Report the estimated coefficients.
 
 ::: {.callout-note title="Solution"}
-```{r}
-y <- train_data$y
-x <- as.matrix(train_data[, c('spatial', 'temporal', 'tod', 'dow', 'LOC', 'POA', 'MOA', 'TIMERANGE')])
 
-alpha_values <- seq(0,1, by = 0.1)
+```{r}
+y <- train_data$y  
+x <- as.matrix(train_data %>% select(-c("y")))
+
+alpha_values <- seq(0, 1, by = 0.1)
+
 results <- list(alpha = c(), lambda = c(), cv_error = c())
 
 for (alpha in alpha_values) {
-  cv_model <- cv.glmnet(x,y, alpha = alpha)
+  cv_model <- cv.glmnet(x, y, alpha = alpha, seed = 27)
+  
   lambda_min <- cv_model$lambda.min
-  cv_error <- cv_model$cvm[cv_model$lambda == lambda_min]
+  cv_error <- min(cv_model$cvm)  # Get the minimum CV error
+  
   results$alpha <- c(results$alpha, alpha)
   results$lambda <- c(results$lambda, lambda_min)
   results$cv_error <- c(results$cv_error, cv_error)
 }
 
+min_index <- which.min(results$cv_error)
 
+best_alpha <- results$alpha[min_index]
+best_lambda <- results$lambda[min_index]
+best_cv <- results$cv_error[min_index]
+
+linear_model <- glmnet(x, y, alpha = best_alpha, lambda = best_lambda)
+
+cat("Best alpha:", best_alpha, "\n")
+cat("Best lambda:", best_lambda, "\n")
+cat("Best cross-validation error:", best_cv, "\n")
+cat("Coefficients:\n")
+print(coef(linear_model))
 ```
-
 
 :::
 
@@ -86,7 +101,40 @@ Use an elastic net penalty (including lasso and ridge) (your choice).
 - Report the estimated coefficients.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+y <- train_data$y  
+x <- as.matrix(train_data %>% select(-c("y")))
+
+alpha_values <- seq(0, 1, by = 0.1) 
+
+results <- list(alpha = c(), lambda = c(), cv_error = c())
+
+for (alpha in alpha_values) {
+  cv_model <- cv.glmnet(x, y, alpha = alpha, family = "binomial")
+  
+  lambda_min <- cv_model$lambda.min
+  cv_error <- min(cv_model$cvm)  
+
+  results$alpha <- c(results$alpha, alpha)
+  results$lambda <- c(results$lambda, lambda_min)
+  results$cv_error <- c(results$cv_error, cv_error)
+}
+
+min_index <- which.min(results$cv_error)
+
+best_alpha <- results$alpha[min_index]
+best_lambda <- results$lambda[min_index]
+best_cv <- results$cv_error[min_index]
+
+logistic_model <- glmnet(x, y, alpha = best_alpha, lambda = best_lambda, family = "binomial")
+
+cat("Best alpha:", best_alpha, "\n")
+cat("Best lambda:", best_lambda, "\n")
+cat("Best cross-validation error:", best_cv, "\n")
+cat("Coefficients:\n")
+print(coef(logistic_model))
+```
+
 :::
 
 # Problem 2: Random Forest for Crime Linkage
@@ -98,7 +146,59 @@ Fit a random forest model to predict crime linkage.
 - Report the variable importance (indicate which importance method was used). 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+library(ranger)
+y <- train_data$y  
+x <- train_data %>% select(-y)  
+
+mtry_values <- seq(1, ncol(x), by = 1)
+results <- list(mtry = c(), oob_error = c())
+
+for (mtry in mtry_values) {
+  rf_model <- ranger(
+    formula = y ~ .,  
+    data = train_data,  
+    importance = "impurity",  
+    num.trees = 1000,  
+    mtry = mtry,  
+    splitrule = "gini",  
+    classification = TRUE,  
+    oob.error = TRUE, 
+    seed = 27
+  )
+  
+  results$mtry <- c(results$mtry, mtry)
+  results$oob_error <- c(results$oob_error, rf_model$prediction.error)  # OOB error
+  
+}
+
+results_df <- as.data.frame(results)
+
+best_mtry_index <- which.min(results_df$oob_error)
+best_mtry <- results_df$mtry[best_mtry_index]
+best_oob_error <- results_df$oob_error[best_mtry_index]
+
+cat("Best mtry:", best_mtry, "\n")
+cat("Best OOB error:", best_oob_error, "\n")
+
+final_rf_model <- ranger(
+  formula = y ~ ., 
+  data = train_data, 
+  importance = "impurity",  
+  num.trees = 1000,  
+  mtry = best_mtry,  
+  splitrule = "gini", 
+  classification = TRUE,
+  probability = TRUE,
+  seed = 27
+)
+
+var_importance <- final_rf_model$variable.importance
+
+cat("Variable Importance (Mean Decrease in Gin was used):", "\n")
+print(var_importance)
+```
+
 :::
 
 # Problem 3: ROC Curves
@@ -111,7 +211,40 @@ Also report the AUC (area under the ROC curve) for each model. Again, use the *t
 - Note: you should be weary of being asked to evaluation predictive performance from the same data used to estimate the tuning and model parameters. The next problem will walk you through a more proper way of evaluating predictive performance with resampling. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+library(pROC)
+
+y <- train_data$y  
+x <- as.matrix(train_data %>% select(-c("y")))
+
+pred_linear <- predict(linear_model, newx = x, type = "response")
+roc_linear <- roc(train_data$y, as.vector(pred_linear))
+auc_linear <- auc(roc_linear)
+
+pred_logistic <- predict(logistic_model, newx = x, type = "response")
+roc_logistic <- roc(train_data$y, as.vector(pred_logistic))
+auc_logistic <- auc(roc_logistic)
+
+pred_rf <- predict(final_rf_model, data = train_data)$predictions[,2] 
+roc_rf <- roc(train_data$y, pred_rf)
+auc_rf <- auc(roc_rf)
+
+ggplot() +
+  geom_line(aes(x = roc_linear$specificities, y = roc_linear$sensitivities, color = "Linear")) +
+  geom_line(aes(x = roc_logistic$specificities, y = roc_logistic$sensitivities, color = "Logistic")) +
+  geom_line(aes(x = roc_rf$specificities, y = roc_rf$sensitivities, color = "Random Forest")) +
+  labs(title = "ROC Curves for Linear, Logistic, and Random Forest (Class I) Models",
+       x = "Specificity",
+       y = "Sensitivity") +
+  scale_color_manual(name = "Model", values = c("Linear" = "blue", "Logistic" = "green", "Random Forest" = "red"))
+
+
+cat("AUC for Linear Model:", auc_linear, "\n")
+cat("AUC for Logistic Model:", auc_logistic, "\n")
+cat("AUC for Random Forest Model:", auc_rf, "\n")
+```
+
+
 :::
 
 
@@ -131,7 +264,90 @@ Recreate the ROC curve from the penalized logistic regression (logreg) and rando
 - Note: by estimating $\lambda$ each iteration, we are incorporating the uncertainty present in estimating that tuning parameter. 
     
 ::: {.callout-note title="Solution"} 
-Add solution here
+```{r}
+set.seed(27)
+
+n_iterations <- 25
+holdout_size <- 500
+alpha_value <- 0.75
+mtry_value <- 2
+num_trees <- 1000
+
+results_logreg <- list(auc = c(), roc_curves = list())
+results_rf <- list(auc = c(), roc_curves = list())
+
+for (i in 1:n_iterations) {
+  # i: Hold out 500 observations
+  holdout_index <- sample(1:nrow(train_data), holdout_size)
+  train_subset <- train_data[-holdout_index, ]
+  holdout_subset <- train_data[holdout_index, ]
+  
+  y_train <- train_subset$y
+  x_train <- as.matrix(train_subset %>% select(-c("y")))
+  
+  # ii: Estimate lambda using 10-fold CV for logistic regression
+  cv_logreg <- cv.glmnet(x_train, y_train, alpha = alpha_value, family = "binomial", nfolds = 10)
+  best_lambda <- cv_logreg$lambda.min
+  logreg_model <- glmnet(x_train, y_train, alpha = alpha_value, lambda = best_lambda, family = "binomial")
+  
+  # iii: Predict the probability for the hold-out observations
+  x_holdout <- as.matrix(holdout_subset %>% select(-c("y")))
+  pred_logreg <- predict(logreg_model, newx = x_holdout, type = "response")
+  
+  # random forest model
+  rf_model <- ranger(
+    formula = y ~ ., 
+    data = train_subset, 
+    mtry = mtry_value, 
+    num.trees = num_trees, 
+    probability = TRUE,
+    seed = 27
+  )
+  pred_rf <- predict(rf_model, data = holdout_subset)$predictions[,2]
+  
+  # iv: Calculate the AUC for both models
+  auc_logreg <- auc(roc(holdout_subset$y, as.vector(pred_logreg)))
+  auc_rf <- auc(roc(holdout_subset$y, pred_rf))
+  
+  results_logreg$auc <- c(results_logreg$auc, auc_logreg)
+  results_rf$auc <- c(results_rf$auc, auc_rf)
+  
+  results_logreg$roc_curves[[i]] <- roc(holdout_subset$y, as.vector(pred_logreg))
+  results_rf$roc_curves[[i]] <- roc(holdout_subset$y, pred_rf)
+}
+
+# v: mean AUC and standard error for both models
+mean_auc_logreg <- mean(results_logreg$auc)
+se_auc_logreg <- sd(results_logreg$auc) / sqrt(n_iterations)
+
+mean_auc_rf <- mean(results_rf$auc)
+se_auc_rf <- sd(results_rf$auc) / sqrt(n_iterations)
+
+cat("Logistic Regression:", mean_auc_logreg, "SE:", se_auc_logreg, "\n")
+cat("Random Forest:", mean_auc_rf, "SE:", se_auc_rf, "\n")
+
+
+# Logistic Regression
+ggplot() +
+  lapply(1:n_iterations, function(i) {
+    geom_line(aes(x = 1 - results_logreg$roc_curves[[i]]$specificities,
+                  y = results_logreg$roc_curves[[i]]$sensitivities),
+              color = "red", alpha = 0.4)
+  }) +
+  labs(title = "ROC Curves for Logistic Regression Models",
+       x = "Specificity", y = "Sensitivity")
+
+# Random Forest
+ggplot() +
+  lapply(1:n_iterations, function(i) {
+    geom_line(aes(x = 1 - results_rf$roc_curves[[i]]$specificities,
+                  y = results_rf$roc_curves[[i]]$sensitivities),
+              color = "blue", alpha = 0.4)
+  }) +
+  labs(title = "ROC Curves for Random Forest Models",
+       x = "Specificity", y = "Sensitivity")
+```
+
 :::
 
 # Problem 4: Contest
@@ -151,7 +367,15 @@ $$
 where $M$ is the number of test observations, $\hat{p}_i$ is the prediction for the $i$th test observation, and $y_i \in \{0,1\}$ are the true test set labels. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+test_data <- read.csv(file.path(dir_data, "linkage_test.csv"))
+x_test <- test_data  
+
+pred_prob_rf <- predict(final_rf_model, data = x_test)$predictions[,2]  
+
+write.csv(data.frame(p = pred_prob_rf), "yang_alex_1.csv", row.names = FALSE)
+```
+
 :::
 
 
@@ -166,6 +390,13 @@ Predict the linkages for the test data (using any model).
 - You will receive credit for a proper submission; the top five scores will receive 2 bonus points. Note: you only will get bonus credit for one of the two contests. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+pred_prob_rf <- predict(final_rf_model, data = x_test)$predictions[,2]  
+threshold <- 0.3
+pred_linkage <- ifelse(pred_prob_rf > threshold, 1, 0)
+
+write.csv(data.frame(linkage = pred_linkage), "yang_alex_2.csv", row.names = FALSE)
+```
+
 :::
 
