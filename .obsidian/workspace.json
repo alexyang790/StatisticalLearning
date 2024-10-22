@@ -4,8 +4,26 @@
     "type": "split",
     "children": [
       {
+        "id": "e8d1c91deaaf4462",
+        "type": "tabs",
+        "dimension": 65.54441260744986,
+        "children": [
+          {
+            "id": "096efecb9ab37140",
+            "type": "leaf",
+            "state": {
+              "type": "pdf",
+              "state": {
+                "file": "Slides/7a_support_vector_machine.pdf"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "49e7d6f53c3fdde7",
         "type": "tabs",
+        "dimension": 34.45558739255014,
         "children": [
           {
             "id": "d585605bed8f82a2",
@@ -18,21 +36,8 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "096efecb9ab37140",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "ClassNotes/7a Support Vector Machines.md",
-                "mode": "source",
-                "source": false
-              }
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -82,7 +87,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5
+    "width": 239.5,
+    "collapsed": true
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -98,7 +104,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ClassNotes/7a Support Vector Machines.md",
+                "file": "Slides/7a_support_vector_machine.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +121,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ClassNotes/7a Support Vector Machines.md",
+                "file": "Slides/7a_support_vector_machine.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +144,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ClassNotes/7a Support Vector Machines.md"
+                "file": "Slides/7a_support_vector_machine.pdf"
               }
             }
           },
@@ -172,15 +178,15 @@
   },
   "active": "096efecb9ab37140",
   "lastOpenFiles": [
+    "ClassNotes/7a Support Vector Machines.md",
+    "ClassNotes/6b Classification - Decision Theory.md",
     "Slides/7a_support_vector_machine.pdf",
     "Slides/svm.pdf",
     "ClassNotes/3b Cross Validation and Model Selection.md",
     "ClassNotes/3a Resampling - Bootstrap and Splines.md",
     "ClassNotes/4a Penalized Regression.md",
     "ClassNotes/5a Prediction Trees.md",
-    "ClassNotes/7a Support Vector Machines.md",
     "ClassNotes/6a Classification - Probability Modeling.md",
-    "ClassNotes/6b Classification - Decision Theory.md",
     "Slides/6a_classification - probability modeling.pdf",
     "Slides/6b_classification_decision_theory.pdf",
     "Slides/prob-modeling.pdf",
@@ -191,7 +197,6 @@
     "ClassNotes/trees.pdf",
     "LinearRegressionNotes.md",
     "Rproject/hw3_files/libs/bootstrap/bootstrap-icons.woff",
-    "Rproject/hw3_files/libs/bootstrap/bootstrap.min.css",
     "Rproject/hw3_files/figure-html/unnamed-chunk-2-1.png",
     "Rproject/hw3_files/figure-html/unnamed-chunk-1-1.png",
     "Rproject/hw2_files/figure-html/unnamed-chunk-9-2.png",

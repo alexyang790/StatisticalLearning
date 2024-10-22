@@ -65,7 +65,27 @@ Specifically, create a table (e.g., data frame) that provides the following info
 Indicate the choices you made in estimation (e.g., state the prior if you used Bayesian methods).
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+library(tidyverse)
+library(broom)
+
+risk_analysis <- risk %>%
+  group_by(score) %>%
+  summarise(
+    n = n(),
+    recid_prob = mean(outcome),
+    se = sqrt(recid_prob * (1 - recid_prob) / n)
+  ) %>%
+  mutate(
+    ci_lower = recid_prob - 1.96 * se,
+    ci_upper = recid_prob + 1.96 * se
+  ) %>%
+  select(score, n, recid_prob, ci_lower, ci_upper)
+
+print(risk_analysis)
+```
+> For the confidence interval I used the normal approximatio methods and assumed that the samping distribution is approximately normal given the large sample size
+
 :::
 
 ## b. Risk Score and Probability (plot)
@@ -77,7 +97,22 @@ Make a plot of the risk scores and corresponding estimated probability of recidi
 - Comment on the patterns you see. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+ggplot(risk_analysis, aes(x = score, y = recid_prob)) +
+  geom_point(size = 2, color = "red") +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2) +
+  geom_line(color = "blue") +
+  scale_x_continuous(breaks = 1:10) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+  labs(
+    title = "COMPAS Score vs Recidivism Probability",
+    x = "COMPAS Risk Score",
+    y = "Recidivism Probability"
+  ) +
+  theme_minimal()
+
+```
+> there is a positive correlation between the COMPAS score and the estimated probability of recidivism. However the relationship is not perfectly linear. This indicates that there might be some calibration issues because the probabilities don't align perfectly with what the risk score might suggest, espeically between ruisk score 9 and 10 we can see a significant difference between the two. Looking at the confidence intervals we can see there are few overlaps between different COMPAS risk scores which might suggested more errors in the scores. 
 :::
 
 ## c. Risk Score and Probability (by race)
@@ -86,7 +121,36 @@ Repeat the analysis, but this time do so for every race. Produce a set of plots 
 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+risk_analysis_by_race <- risk %>%
+  group_by(race, score) %>%
+  summarise(
+    n = n(),
+    recid_prob = mean(outcome),
+    se = sqrt(recid_prob * (1 - recid_prob) / n)
+  ) %>%
+  mutate(
+    ci_lower = pmax(0, recid_prob - 1.96 * se),
+    ci_upper = pmin(1, recid_prob + 1.96 * se)
+  ) %>%
+  ungroup()
+
+
+ggplot(risk_analysis_by_race, aes(x = score, y = recid_prob)) +
+  geom_point(size = 2, color = "red") +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2) +
+  geom_line(color = "blue") +
+  facet_wrap(~ race, scales = "free_y") +
+  scale_x_continuous(breaks = seq(1, 10, by = 2)) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "COMPAS Score vs Recidivism Probability by Race",
+    x = "COMPAS Risk Score",
+    y =  "Recidivism Probability",
+  ) +
+  theme_minimal() 
+```
+> first we can see that there isn't much data for races other than African Americans and Caucasian beacuse these two races have the narrowest confidence intervals compared to other races. Second there is very inconsistent patterns for Asian, Hispanic, and Native Americans which suggests discrimination based on races. 
 :::
 
 ## d. ROC Curves
@@ -97,7 +161,28 @@ Use the raw COMPAS risk scores to make a ROC curve for each race.
 - Are the ROC curves helpful in evaluating the COMPAS risk score? 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+library(pROC)
+
+create_roc_curve <- function(data, race_group) {
+  race_data <- data %>% filter(race == race_group)
+  roc_obj <- roc(race_data$outcome, race_data$score)
+  auc_value <- auc(roc_obj)
+  
+  list(roc = roc_obj, auc = auc_value)
+}
+
+races <- unique(risk$race)
+roc_results <- map(races, ~create_roc_curve(risk, .))
+names(roc_results) <- races
+
+plot(roc_results[[1]]$roc, main="ROC Curves by Race", col=1)
+for (i in 2:length(roc_results)) {
+  plot(roc_results[[i]]$roc, add=TRUE, col=i)
+}
+legend("bottomright", legend=races, col=1:length(races), lwd=2)
+```
+> yes the best discriminating models are the ones i expected which is the races other than white and african american. The ROC curve is helpfull because they show the differences in model performance across different racial groups in one graph
 :::
 
 
