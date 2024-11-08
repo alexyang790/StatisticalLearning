@@ -1,0 +1,200 @@
+---
+title: "Homework #7: Stacking and Boosting" 
+author: "Alex Yang"
+format: ds6030hw-html
+---
+
+
+
+```{r config, include=FALSE}
+# Set global configurations and settings here
+knitr::opts_chunk$set()                 # set global chunk options
+ggplot2::theme_set(ggplot2::theme_bw()) # set ggplot2 theme
+```
+
+```{r}
+# EDA
+library(tidyverse)
+library(ggplot2)
+library(corrplot)
+
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
+
+head(train)
+summary(train)
+glimpse(train)
+
+# NA values
+missing_vals <- train %>%
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "Feature", values_to = "MissingCount") %>%
+  filter(MissingCount > 0)
+
+ggplot(missing_vals, aes(x = reorder(Feature, -MissingCount), y = MissingCount)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Missing Values per Feature", x = "Features", y = "Missing Count")
+
+# correlations for numeric vars
+numeric_vars <- train %>% select(where(is.numeric))
+cor_matrix <- cor(numeric_vars, use = "complete.obs")
+corrplot(cor_matrix, method = "circle", type = "lower", tl.cex = 0.8)
+
+# cat variables
+categorical_vars <- train %>%
+  select_if(is.character) %>%
+  names()
+print("Categorical Variables:")
+print(categorical_vars)
+
+# distribution of sale price
+ggplot(train, aes(x = SalePrice)) +
+  geom_histogram(bins = 30, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of SalePrice", x = "Sale Price", y = "Frequency")
+
+# visualize numerical data 
+
+numeric_features <- train %>%
+  select(SalePrice, where(is.numeric), -Id) %>%
+  pivot_longer(cols = -SalePrice, names_to = "Feature", values_to = "Value")
+
+ggplot(numeric_features, aes(x = Value, y = SalePrice)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  facet_wrap(~ Feature, scales = "free_x") +
+  labs(title = "SalePrice vs All Numeric Features",
+       x = "Feature Values",
+       y = "Sale Price")
+```
+
+
+
+```{r}
+# Load Libraries
+library(caret)
+library(dplyr)
+library(glmnet)
+library(gbm)
+library(ranger)
+
+# Suppress warnings and messages
+suppressWarnings(suppressMessages({
+  # Data Loading
+  train <- read.csv("train.csv")
+  test <- read.csv("test.csv")
+
+  # Feature Engineering
+  train$LogSalePrice <- log(train$SalePrice)
+  train <- train %>% select(-SalePrice)  # Drop original SalePrice after log transformation
+
+  # NA Handling
+  train$PoolQC[is.na(train$PoolQC)] <- "NoPool"
+  test$PoolQC[is.na(test$PoolQC)] <- "NoPool"
+  train <- train %>% select(-MiscFeature)
+  test <- test %>% select(-MiscFeature)
+
+  train$Alley[is.na(train$Alley)] <- "NoAlley"
+  test$Alley[is.na(test$Alley)] <- "NoAlley"
+  train$Fence[is.na(train$Fence)] <- "NoFence"
+  test$Fence[is.na(test$Fence)] <- "NoFence"
+  train$FireplaceQu[is.na(train$FireplaceQu)] <- "NoFireplace"
+  test$FireplaceQu[is.na(test$FireplaceQu)] <- "NoFireplace"
+
+  # Fill missing values for numeric and character columns
+  train <- train %>%
+    mutate(LotFrontage = ifelse(is.na(LotFrontage), 0, LotFrontage),
+           across(where(is.numeric), ~ ifelse(is.na(.), median(., na.rm = TRUE), .)),
+           across(where(is.character), ~ ifelse(is.na(.), "None", .)))
+  test <- test %>%
+    mutate(LotFrontage = ifelse(is.na(LotFrontage), 0, LotFrontage),
+           across(where(is.numeric), ~ ifelse(is.na(.), median(., na.rm = TRUE), .)),
+           across(where(is.character), ~ ifelse(is.na(.), "None", .)))
+
+  # Combine train and test for consistent one-hot encoding
+  combined <- rbind(train %>% select(-LogSalePrice), test)
+
+  # One-Hot Encoding
+  combined <- model.matrix(~ . -1, data = combined)
+  
+  # Remove columns with zero variance
+  combined <- combined[, apply(combined, 2, var) != 0]
+  
+  # Split back into train and test sets
+  train_data <- combined[1:nrow(train), ]
+  test_data <- combined[(nrow(train) + 1):nrow(combined), ]
+
+  y <- train$LogSalePrice
+
+  # Model Building with Base Learners
+  set.seed(123)
+  train_control <- trainControl(method = "cv", number = 5, verboseIter = FALSE)
+
+  # Linear Regression
+  model_lm <- train(train_data, y, method = "lm", trControl = train_control)
+
+  # Random Forest
+  model_rf <- train(
+    train_data, y, 
+    method = "ranger", 
+    trControl = train_control,
+    tuneGrid = expand.grid(
+      mtry = 3:5, 
+      splitrule = "variance", 
+      min.node.size = 5
+    )
+  )
+
+  # Gradient Boosting
+  model_gbm <- train(
+    train_data, y, method = "gbm", 
+    trControl = train_control,
+    tuneGrid = expand.grid(
+      n.trees = seq(50, 500, by = 50),
+      interaction.depth = 1:3,
+      shrinkage = 0.1,
+      n.minobsinnode = 10
+    ),
+    verbose = FALSE
+  )
+
+  # Calculate RMSE for each model on the training data
+  rmse_lm <- RMSE(predict(model_lm, train_data), y)
+  rmse_rf <- RMSE(predict(model_rf, train_data), y)
+  rmse_gbm <- RMSE(predict(model_gbm, train_data), y)
+
+  # Stacking the Models
+  stack_train <- data.frame(
+    lm_pred = predict(model_lm, train_data),
+    rf_pred = predict(model_rf, train_data),
+    gbm_pred = predict(model_gbm, train_data)
+  )
+
+  # Elastic Net 
+  x_stack <- as.matrix(stack_train)
+  model_meta <- cv.glmnet(x_stack, y, alpha = 0.5)
+
+  # Calculate RMSE for stacked model
+  rmse_meta <- RMSE(predict(model_meta, as.matrix(stack_train), s = "lambda.min"), y)
+
+  # Print RMSE results for each model
+  cat("RMSE for Linear Regression:", rmse_lm, "\n")
+  cat("RMSE for Random Forest:", rmse_rf, "\n")
+  cat("RMSE for Gradient Boosting:", rmse_gbm, "\n")
+  cat("RMSE for Stacked Model:", rmse_meta, "\n")
+}))
+
+# Final Prediction on Test Set
+stack_test <- data.frame(
+  lm_pred = predict(model_lm, test_data),
+  rf_pred = predict(model_rf, test_data),
+  gbm_pred = predict(model_gbm, test_data)
+)
+
+# Final Prediction with Meta-Learner
+final_preds <- exp(predict(model_meta, as.matrix(stack_test), s = "lambda.min"))
+
+# Create Submission File
+submission <- data.frame(Id = test$Id, SalePrice = final_preds)
+submission <- submission |> rename(SalePrice = lambda.min)
+write.csv(submission, "submission.csv", row.names = FALSE)
+```
