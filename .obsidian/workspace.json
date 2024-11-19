@@ -6,42 +6,37 @@
       {
         "id": "e8d1c91deaaf4462",
         "type": "tabs",
-        "dimension": 65.54441260744986,
         "children": [
           {
             "id": "096efecb9ab37140",
             "type": "leaf",
             "state": {
-              "type": "pdf",
-              "state": {
-                "file": "Slides/7a_support_vector_machine.pdf"
-              },
-              "icon": "lucide-file-text",
-              "title": "7a_support_vector_machine"
-            }
-          }
-        ]
-      },
-      {
-        "id": "49e7d6f53c3fdde7",
-        "type": "tabs",
-        "dimension": 34.45558739255014,
-        "children": [
-          {
-            "id": "d585605bed8f82a2",
-            "type": "leaf",
-            "state": {
               "type": "markdown",
               "state": {
-                "file": "ClassNotes/6b Classification - Decision Theory.md",
+                "file": "ClassNotes/7a Support Vector Machines.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "6b Classification - Decision Theory"
+              "title": "7a Support Vector Machines"
+            }
+          },
+          {
+            "id": "1fbbac2f9cbef145",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ClassNotes/12b Density Estimation.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "12b Density Estimation"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -97,8 +92,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 239.5,
-    "collapsed": true
+    "width": 239.5
   },
   "right": {
     "id": "b5fb9fbeeed7a9f9",
@@ -196,36 +190,38 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "096efecb9ab37140",
+  "active": "1fbbac2f9cbef145",
   "lastOpenFiles": [
+    "Rproject/hw9_files/libs/quarto-html/tippy.umd.min.js",
+    "Rproject/hw9_files/libs/quarto-html/tippy.css",
+    "Rproject/hw9_files/libs/quarto-html/quarto.js",
+    "Rproject/hw9_files/libs/quarto-html/quarto-syntax-highlighting.css",
+    "Rproject/hw9_files/libs/quarto-html/popper.min.js",
+    "Rproject/hw9_files/libs/quarto-html/anchor.min.js",
+    "Rproject/hw9_files/libs/clipboard/clipboard.min.js",
+    "Rproject/hw9_files/libs/bootstrap/bootstrap.min.js",
+    "Rproject/hw9_files/libs/bootstrap/bootstrap.min.css",
+    "Rproject/hw9_files/libs/bootstrap/bootstrap-icons.woff",
+    "Rproject/hw9_files/libs/bootstrap/bootstrap-icons.css",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-9-1.png",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-8-1.png",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-7-1.png",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-5-1.png",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-4-1.png",
+    "Rproject/hw9_files/figure-html/unnamed-chunk-2-1.png",
     "ClassNotes/7a Support Vector Machines.md",
+    "ClassNotes/12b Density Estimation.md",
     "ClassNotes/6b Classification - Decision Theory.md",
-    "Slides/7a_support_vector_machine.pdf",
-    "Slides/svm.pdf",
     "ClassNotes/3b Cross Validation and Model Selection.md",
     "ClassNotes/3a Resampling - Bootstrap and Splines.md",
     "ClassNotes/4a Penalized Regression.md",
     "ClassNotes/5a Prediction Trees.md",
     "ClassNotes/6a Classification - Probability Modeling.md",
-    "Slides/6a_classification - probability modeling.pdf",
-    "Slides/6b_classification_decision_theory.pdf",
-    "Slides/prob-modeling.pdf",
-    "Slides/5a Prediction Trees.pdf",
     "Screenshot 2024-09-28 at 13.42.01.png",
-    "Slides/2a_supervised_1-notes.pdf",
-    "Slides/4a_penalized-regression.pdf",
-    "ClassNotes/trees.pdf",
     "LinearRegressionNotes.md",
-    "Rproject/hw3_files/libs/bootstrap/bootstrap-icons.woff",
     "Rproject/hw3_files/figure-html/unnamed-chunk-2-1.png",
     "Rproject/hw3_files/figure-html/unnamed-chunk-1-1.png",
     "Rproject/hw2_files/figure-html/unnamed-chunk-9-2.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-9-1.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-7-1.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-6-1.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-5-1.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-4-1.png",
-    "Rproject/hw2_files/figure-html/unnamed-chunk-3-1.png",
     "ClassNotes/2b Supervised Learning II.md",
     "ClassNotes/2a Supervised Learning I.md",
     "Books/Books.md",

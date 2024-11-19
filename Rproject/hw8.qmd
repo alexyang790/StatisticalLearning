@@ -1,6 +1,6 @@
 ---
 title: "Homework #8: Boosting" 
-author: "**Your Name Here**"
+author: "Alex Yang"
 format: ds6030hw-html
 ---
 
@@ -51,7 +51,24 @@ Check out the variable descriptions in the [Additional Variable Information](htt
 3. Unnormalize `windspeed`.
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+bikesharing_data <- read.csv("hour.csv")
+# 1. convert the weathersit to an ordered factor
+bikesharing_data <- bikesharing_data %>%
+  mutate(weathersit = factor(weathersit, levels = c(1, 2, 3, 4), 
+                             labels = c("Clear", "Mist", "Light Snow/Rain", "Heavy Snow/Rain"),
+                             ordered = TRUE))
+
+# 2. Unnormalize `temp` and `atemp` and convert to Fahrenheit. 
+bikesharing_data <- bikesharing_data %>%
+  mutate(temp = temp * 41 * (9/5) + 32,
+         atemp = atemp * 41 * (9/5) + 32)
+
+# 3. Unnormalize `windspeed`
+bikesharing_data <- bikesharing_data %>%
+  mutate(windspeed = windspeed * 67)
+```
+
 :::
 
 
@@ -66,7 +83,29 @@ This may not be perfect, but do the following to account for missing times:
 2. Fill in the other missing feature values with values from previous hour. For example, the `temp` for 2011-01-02 **hr=5** should be set to the `temp` from the non-missing 2011-01-02 **hr=4**. `tidyr::fill()` can help. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+bikesharing_data <- bikesharing_data %>%
+  mutate(dteday = as.Date(dteday))
+
+# generate all possible date and time combo
+all_times <- expand_grid(
+  dteday = seq.Date(min(bikesharing_data$dteday), max(bikesharing_data$dteday), by = "day"),
+  hr = 0:23
+)
+
+# join with original df
+bikesharing_data_complete <- all_times %>%
+  left_join(bikesharing_data, by = c("dteday", "hr")) %>%
+  # set outcome var to 0 for the NA ones
+  mutate(
+    casual = replace_na(casual, 0),
+    registered = replace_na(registered, 0),
+    cnt = replace_na(cnt, 0)
+  ) %>%
+  # fill na values from the previous hour time
+  fill(season, yr, mnth, holiday, weekday, workingday, weathersit, temp, atemp, hum, windspeed, .direction = "down")
+```
+
 :::
 
 
@@ -84,7 +123,28 @@ Hints:
 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r} 
+library(lubridate)
+library(tidyverse)
+bikesharing_data_complete <- bikesharing_data_complete |>
+  # add doy 
+  mutate(doy = yday(dteday)) |>
+  # add days 
+  mutate(days = as.numeric(dteday - as.Date("2011-01-01")) + hr / 24) |>
+  # add lagged counts" autoregressive
+  mutate(cnt_ar = lag(cnt, 1, default = NA)) |>
+  # add lagged counts: same time previous day
+  mutate(cnt_lag_24 = lag(cnt, 24, default = NA))
+
+# there is some NAs after adding vars - taking care of them here
+bikesharing_data_complete <- bikesharing_data_complete %>%
+  mutate(
+    cnt_ar = ifelse(is.na(cnt_ar), 0, cnt_ar),
+    cnt_lag_24 = ifelse(is.na(cnt_lag_24), 0, cnt_lag_24)
+  )
+  
+```
+
 :::
 
 ## e. Train-Test split
@@ -92,7 +152,16 @@ Add solution here
 Randomly select 1000 observations for the test set and use the remaining for training. 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+```{r}
+set.seed(123)
+
+# sample 1000
+test_set <- bikesharing_data_complete %>% sample_n(1000)
+
+# use remaining for training
+train_set <- bikesharing_data_complete %>% anti_join(test_set, by = c("dteday", "hr"))
+```
+
 :::
 
 # Problem 2: Predicting bike rentals
@@ -106,7 +175,17 @@ The outcome variables, number of renters, are counts (i.e., non-negative integer
 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+gradient:  
+g_i = -y_i + e^{\hat{F}_i}
+
+hessian: 
+h_i = e^{\hat{F}_i}
+
+Pseudo-Residual:
+z_i = y_i - \hat{\lambda}_i 
+
+Weight:  
+w_i = \hat{\lambda}_i 
 :::
 
 ## b. LightGBM Tuning
@@ -124,14 +203,66 @@ i. List relevant tuning parameter values, even those left at their default value
 ii. Indicate what method was used for tuning (e.g., type of cross-validation). 
 
 ::: {.callout-note title="Solution"}
-Add solution here
+## Relavent tuning parameter values 
+max_depth: controls the max depth of trees 
+num_iterations: boosting rounds
+learning_rate: controls the step size 
+min_data_in_leaf: min number of samples in a leaf
+feature_fraction: fraction of features used in each iteration
+
+## Method used for tuning 
+use 5 fold CV for tuning
+```{r}
+library(lightgbm)
+library(tidyverse)
+
+# parameter grid for tuning
+params_grid <- expand.grid(
+  max_depth = c(5, 10, 15),
+  num_leaves = c(20, 30, 50),
+  learning_rate = c(0.01, 0.05, 0.1),
+  n_estimators = c(100, 300, 500)
+)
+
+# set up data
+train_data <- lgb.Dataset(data = as.matrix(train_set %>% select(-cnt)), label = train_set$cnt)
+test_data <- lgb.Dataset(data = as.matrix(test_set %>% select(-cnt)), label = test_set$cnt)
+
+# 5 fold CV with Lightgbm
+cv_results <- params_grid %>%
+  rowwise() %>%
+  mutate(
+    model = list(lightgbm::lgb.train(
+      params = list(
+        objective = "poisson",
+        metric = "poisson",
+        max_depth = max_depth,
+        num_leaves = num_leaves,
+        learning_rate = learning_rate,
+        num_iterations = n_estimators,
+        feature_fraction = 0.8
+      ),
+      data = train_data,
+      nrounds = n_estimators,
+      valids = list(test = test_data),
+      early_stopping_rounds = 10,
+      verbose = -1
+    )),
+    best_score = model$best_score
+  ) %>%
+  arrange(best_score)
+
+
+best_model_params <- cv_results %>%
+  arrange(best_score) %>%
+  slice(1)
+
+print(best_model_params)
+```
+
+
+
 :::
 
-## c. Evaluation
 
-Make predictions on the test data and evaluate. Report the point estimate and 95% confidence interval for the poisson log loss *and* the mean absolute error. 
-
-::: {.callout-note title="Solution"}
-Add solution here
-:::
 
