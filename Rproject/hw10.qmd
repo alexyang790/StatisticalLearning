@@ -19,6 +19,16 @@ library(ks)        # functions for KDE
 library(tidyverse) # functions for data manipulation   
 ```
 
+```{r}
+library(tidyverse)
+bat_data = read.csv(file.path(data_dir, "geo_profile.csv"))
+
+bat_data <- bat_data |> 
+  rename(X = 'X2.5817631825286242')|>
+  bind_rows(tibble(X = 3.5))
+
+str(bat_data)
+```
 
 
 # Problem 1 Geographic Profiling
@@ -39,7 +49,7 @@ where the parameter $\theta > 0$ controls how far they are willing to travel.
 ## a. Derive a closed-form expression for the MLE for $\theta$ (i.e., show the math). 
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+![](/Users/alexyang/Git/StatisticalLearning/Rproject/Screenshot 2024-11-27 at 09.11.53.png)
 :::
 
 
@@ -48,7 +58,13 @@ Add solution here.
 Calculate using the solution to part a, or use computational methods.
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+distances <- bat_data$X  # Replace 'distance' with the actual column name if different
+n <- length(distances)
+theta_hat <- (1 / (2 * n)) * sum(distances^2)
+theta_hat
+```
+
 :::
 
 ## c. Plot the estimated density
@@ -58,7 +74,34 @@ Using the MLE value of $\theta$ from part b, calculate the estimated density at 
 - The x-axis should be distance and y-axis should be density (pdf). 
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+# Define the PDF function
+bat_pdf <- function(x, theta) {
+  ifelse(x >= 0, (x / theta) * exp(-x^2 / (2 * theta)), 0)
+}
+
+# Generate points between 0 and 8 meters
+points <- seq(0, 8, length.out = 500)
+
+# Calculate density using theta
+density_values <- sapply(points, function(x) bat_pdf(x, theta_hat))
+
+# Create a dataframe
+density_data <- data.frame(
+  Distance = points,
+  Density = density_values
+)
+
+# Plotting
+ggplot(density_data, aes(x = Distance, y = Density)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Estimated Density for Bat Distances",
+    x = "Distance (meters)",
+    y = "Density"
+  )
+```
+
 :::
 
 ## d. Estimate the density using KDE. 
@@ -66,13 +109,39 @@ Add solution here.
 Report the bandwidth you selected and produce a plot of the estimated density. 
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+kde_result <- kde(x = distances)
+bandwidth <- kde_result$H
+
+# Generate points for plotting 
+points <- seq(min(distances), max(distances), length.out = 500)
+
+density_estimates <- predict(kde_result, x = points)
+
+density_data <- data.frame(
+  Distance = points,
+  Density = density_estimates
+)
+
+# Plotting 
+ggplot(density_data, aes(x = Distance, y = Density)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Kernel Density Estimate for Bat Distances",
+    x = "Distance (meters)",
+    y = "Density"
+  )
+
+cat("Selected Bandwidth Matrix:\n")
+print(bandwidth)
+```
+
 :::
 
 ## e. Which model do you prefer, the parametric or KDE? Why?
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+I prefer parametric here because there isn't much data points and flexibility in the model is not exactly what we are looking for.
 :::
 
 # Problem 2: Interstate Crash Density
@@ -87,7 +156,25 @@ Interstate 64 (I-64) is a major east-west road that passes just south of Charlot
 Extract the crashes and make a scatter plot with mile marker on x-axis and time on y-axis.
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+data2 = read.csv(file.path(data_dir, 'crashes16.csv'))
+```
+
+```{r}
+library(ggplot2)
+ggplot(data2, aes(x = mile, y = time)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Crash Along I-64",
+    x = "Mile Marker",
+    y = "Time of Week"
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 7, 1),
+    labels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+  )
+```
+
 :::
 
 ## b. Use KDE to estimate the *mile marker* density. 
@@ -96,7 +183,33 @@ Add solution here.
 - Plot the density estimate.
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+library(ks)
+
+mile_data <- data2$mile
+kde <- kde(x = mile_data)
+
+# Calculating Bandwidth
+bandwidth <- kde$H
+cat("The bandwidth used for the KDE is:\n")
+print(bandwidth)
+
+# Creating dataframe
+kde_df <- data.frame(
+  mile = kde$eval.points,
+  density = kde$estimate
+)
+
+# Plotting 
+ggplot(kde_df, aes(x = mile, y = density)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Kernel Density Estimate of Mile Marker",
+    x = "Mile Marker",
+    y = "Density"
+  )
+```
+
 :::
 
 ## c. Use KDE to estimate the temporal *time-of-week* density. 
@@ -105,7 +218,31 @@ Add solution here.
 - Plot the density estimate. 
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+time_data <- data2$time
+
+# estimating KDE
+kde_time <- kde(x = time_data)
+time_bandwidth <- kde_time$H
+cat("The bandwidth for the temporal KDE is:\n")
+print(time_bandwidth)
+
+# Convert data to dataframe
+kde_time_df <- data.frame(
+  time = kde_time$eval.points,
+  density = kde_time$estimate
+)
+
+# Plotting
+ggplot(kde_time_df, aes(x = time, y = density)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Kernel Density Estimate of Time of Week",
+    x = "Time of Week",
+    y = "Density"
+  ) 
+```
+
 :::
 
 ## d. Use KDE to estimate the bivariate mile-time density. 
@@ -114,7 +251,33 @@ Add solution here.
 - Plot the bivariate density estimate. 
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+```{r}
+mile_time_data <- data2[, c("mile", "time")]
+
+# KDE estimation 
+kde_bivariate <- kde(x = as.matrix(mile_time_data))
+bandwidth_matrix <- kde_bivariate$H
+cat("The bandwidth for the bivariate KDE is:\n")
+print(bandwidth_matrix)
+
+# Convert data to dataframe
+kde_bivariate_df <- data.frame(
+  expand.grid(mile = kde_bivariate$eval.points[[1]], time = kde_bivariate$eval.points[[2]]),
+  density = as.vector(kde_bivariate$estimate)
+)
+
+# Plotting
+ggplot(kde_bivariate_df, aes(x = mile, y = time, z = density)) +
+  geom_contour_filled(aes(fill = after_stat(level)), alpha = 0.8) +
+  scale_fill_viridis_d(option = "plasma") + # Use the discrete scale
+  labs(
+    title = "Bivariate Kernel Density Estimate (Mile vs. Time)",
+    x = "Mile Marker",
+    y = "Time of Week",
+    fill = "Density"
+  )
+```
+
 :::
 
 ## e. Crash Hotspot
@@ -122,6 +285,6 @@ Add solution here.
 Based on the estimated density, approximate the most dangerous place and time to drive on this stretch of road. Identify the mile marker and time-of-week pair (within a few miles and hours).
 
 ::: {.callout-note title="Solution"}
-Add solution here.
+Based on the estimated density we can see that it is the most dangerous to drive between mile marker 100 to 120 during Friday morning to early Saturday morning
 :::
 
