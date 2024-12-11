@@ -472,7 +472,146 @@ Performance is evaluated using log-loss.
     etc.
 
 ::: {.callout-note title="Solution"}
-Solution here
+### a.1 Loading and Inspecting Data
+```{r}
+library(tidyverse)
+library(caret)
+library(xgboost)
+library(recipes)
+library(gridExtra)
+
+# Loading Data
+train_data <- read.csv("/Users/alexyang/Git/StatisticalLearning/Rproject/donor_accept_train-1.csv")
+test_data <- read.csv("/Users/alexyang/Git/StatisticalLearning/Rproject/donor_accept_test.csv")
+
+# Inspecting Data 
+head(train_data, n = 10)
+
+# Plot the class distribution
+ggplot(train_data, aes(x = outcome)) +
+  geom_bar(fill = "blue") +
+  theme_minimal() +
+  labs(title = "Distribution of Acceptance vs Rejection",
+       x = "Outcome",
+       y = "Count")
+
+# Check for NA values
+na_counts <- colSums(is.na(train_data))
+na_props <- data.frame(
+  variable = names(na_counts),
+  proportion = na_counts / nrow(train_data)
+) %>%
+  filter(proportion > 0) %>%  # Only keep variables with missing values
+  arrange(desc(proportion))
+
+ggplot(na_props, aes(x = reorder(variable, proportion), y = proportion)) +
+  geom_bar(stat = "identity", fill = "coral") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Proportion of Missing Values",
+       x = "Variable",
+       y = "Proportion Missing") +
+  scale_y_continuous(labels = scales::percent_format())
+```
+
+### a.2 Data Processing/Feature Engineering 
+
+```{r}
+# Transforming outcomes to 0 and 1
+train_data$outcome <- ifelse(train_data$outcome == "Accept", 1, 0)
+
+# Define preprocessing recipe
+data_recipe <- recipe(outcome ~ ., data = train_data) %>%
+  step_rm(OFFER_ID) %>%  # Remove non-predictive identifier
+  step_impute_median(all_numeric_predictors()) %>%  # Impute missing values in numeric columns
+  step_impute_mode(all_nominal_predictors()) %>%  # Impute missing values in categorical columns
+  step_dummy(all_nominal_predictors()) %>%  # Convert categorical columns to dummy variables
+  step_center(all_numeric_predictors()) %>%  # Center numeric columns
+  step_scale(all_numeric_predictors())       # Scale numeric columns
+
+```
+
+### a.3 Prepping Data Using Recipe
+
+```{r}
+prep_data <- prep(data_recipe, training = train_data)
+train_processed <- bake(prep_data, new_data = NULL)
+
+# Preprocess test data
+test_processed <- bake(prep_data, new_data = test_data)
+
+# Extract labels for training
+train_matrix <- as.matrix(train_processed %>% select(-outcome))
+train_labels <- train_processed$outcome
+
+# Convert test data to matrix
+test_matrix <- as.matrix(test_processed)
+```
+
+### a.4 Model Training and Evaluation 
+
+```{r}
+set.seed(42)
+
+# Define XGBoost parameters
+xgb_params <- list(
+  objective = "binary:logistic",
+  eval_metric = "logloss",
+  max_depth = 6,
+  eta = 0.1,  # Learning rate
+  subsample = 0.8,  # Row sampling
+  colsample_bytree = 0.8  # Column sampling
+)
+
+# Use cross-validation to find optimal rounds
+dtrain <- xgb.DMatrix(data = train_matrix, label = train_labels)
+cv_model <- xgb.cv(
+  params = xgb_params,
+  data = dtrain,
+  nrounds = 50, # Change later! 
+  nfold = 5,
+  early_stopping_rounds = 20,
+  verbose = 0
+)
+
+best_nrounds <- cv_model$best_iteration
+cat("Best number of rounds:", best_nrounds, "\n")
+
+# Train final model
+xgb_model <- xgb.train(
+  params = xgb_params,
+  data = dtrain,
+  nrounds = best_nrounds,
+  verbose = 0
+)
+```
+
+### a.5 Model Prediction
+```{r}
+# Step 5: Predict on Test Data
+dtest <- xgb.DMatrix(data = test_matrix)
+predictions <- predict(xgb_model, dtest)
+
+# Step 6: Create Submission File
+submission <- data.frame(
+  OFFER_ID = test_data$OFFER_ID,
+  prob_accept = predictions
+)
+write.csv(submission, "yang_zhe.csv", row.names = FALSE)
+
+# Step 7: Visualize Feature Importance
+importance <- xgb.importance(model = xgb_model)
+importance_df <- as.data.frame(importance)
+
+ggplot(head(importance_df, 20), aes(x = reorder(Feature, Gain), y = Gain)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Top 20 Features by Importance",
+       x = "Feature",
+       y = "Gain")
+```
+
 :::
 
 ## b: Hard Classification (10 pts)
