@@ -531,44 +531,70 @@ data_recipe <- recipe(outcome ~ ., data = train_data) %>%
 
 ```
 
-### a.3 Prepping Data Using Recipe
+### a.3 Prepping Data and Feature Importance
 
 ```{r}
+# Prep and bake data
 prep_data <- prep(data_recipe, training = train_data)
 train_processed <- bake(prep_data, new_data = NULL)
-
-# Preprocess test data
 test_processed <- bake(prep_data, new_data = test_data)
 
-# Extract labels for training
-train_matrix <- as.matrix(train_processed %>% select(-outcome))
+# Initial feature importance calculation
+initial_train_matrix <- as.matrix(train_processed %>% select(-outcome))
+initial_train_labels <- train_processed$outcome
+initial_dtrain <- xgb.DMatrix(data = initial_train_matrix, label = initial_train_labels)
+
+# Train initial model for feature importance
+initial_model <- xgb.train(
+  params = list(
+    objective = "binary:logistic",
+    eval_metric = "logloss"
+  ),
+  data = initial_dtrain,
+  nrounds = 20
+)
+
+# Get feature importance
+importance <- xgb.importance(model = initial_model)
+importance_df <- as.data.frame(importance)
+
+# Select top features (adjust threshold as needed)
+feature_threshold <- 0.01  # Keep features with gain > 1%
+selected_features <- importance_df$Feature[importance_df$Gain > feature_threshold]
+
+# Filter data to include only selected features
+train_matrix <- as.matrix(train_processed %>% 
+                           select(all_of(c(selected_features, "outcome"))) %>%
+                           select(-outcome))
 train_labels <- train_processed$outcome
 
-# Convert test data to matrix
-test_matrix <- as.matrix(test_processed)
+test_matrix <- as.matrix(test_processed %>% 
+                          select(all_of(selected_features)))
+
+# Create final training matrix
+dtrain <- xgb.DMatrix(data = train_matrix, label = train_labels)
+
 ```
 
 ### a.4 Model Training and Evaluation 
 
 ```{r}
 set.seed(42)
-
 # Define XGBoost parameters
 xgb_params <- list(
   objective = "binary:logistic",
   eval_metric = "logloss",
   max_depth = 6,
-  eta = 0.1,  # Learning rate
-  subsample = 0.8,  # Row sampling
-  colsample_bytree = 0.8  # Column sampling
+  eta = 0.1,
+  subsample = 0.8,
+  colsample_bytree = 0.8
 )
 
-# Use cross-validation to find optimal rounds
-dtrain <- xgb.DMatrix(data = train_matrix, label = train_labels)
+# Cross-validation with selected features
 cv_model <- xgb.cv(
   params = xgb_params,
   data = dtrain,
-  nrounds = 50, # Change later! 
+  nrounds = 50,
   nfold = 5,
   early_stopping_rounds = 20,
   verbose = 0
@@ -577,7 +603,7 @@ cv_model <- xgb.cv(
 best_nrounds <- cv_model$best_iteration
 cat("Best number of rounds:", best_nrounds, "\n")
 
-# Train final model
+# Train final model with selected features
 xgb_model <- xgb.train(
   params = xgb_params,
   data = dtrain,
@@ -588,28 +614,45 @@ xgb_model <- xgb.train(
 
 ### a.5 Model Prediction
 ```{r}
-# Step 5: Predict on Test Data
+# Predict on test data
 dtest <- xgb.DMatrix(data = test_matrix)
 predictions <- predict(xgb_model, dtest)
 
-# Step 6: Create Submission File
+# Create submission file
 submission <- data.frame(
   OFFER_ID = test_data$OFFER_ID,
   prob_accept = predictions
 )
-write.csv(submission, "yang_zhe.csv", row.names = FALSE)
+#write.csv(submission, "yang_zhe_with_feature_selection.csv", row.false = FALSE)
 
-# Step 7: Visualize Feature Importance
-importance <- xgb.importance(model = xgb_model)
-importance_df <- as.data.frame(importance)
+# Visualize final feature importance
+final_importance <- xgb.importance(model = xgb_model)
+final_importance_df <- as.data.frame(final_importance)
 
-ggplot(head(importance_df, 20), aes(x = reorder(Feature, Gain), y = Gain)) +
+# Create comparison plots
+p1 <- ggplot(head(importance_df, 20), aes(x = reorder(Feature, Gain), y = Gain)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
   coord_flip() +
   theme_minimal() +
-  labs(title = "Top 20 Features by Importance",
+  labs(title = "Initial Top 20 Features",
        x = "Feature",
        y = "Gain")
+
+p2 <- ggplot(head(final_importance_df, 20), aes(x = reorder(Feature, Gain), y = Gain)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Final Top 20 Features (After Selection)",
+       x = "Feature",
+       y = "Gain")
+
+grid.arrange(p1, p2, ncol = 2)
+
+# Print feature selection summary
+cat("\nFeature Selection Summary:\n")
+cat("Original number of features:", ncol(initial_train_matrix), "\n")
+cat("Selected number of features:", length(selected_features), "\n")
+cat("Percentage of features kept:", round(length(selected_features)/ncol(initial_train_matrix)*100, 2), "%\n")
 ```
 
 :::
