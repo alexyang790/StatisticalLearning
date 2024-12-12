@@ -551,7 +551,7 @@ initial_model <- xgb.train(
     eval_metric = "logloss"
   ),
   data = initial_dtrain,
-  nrounds = 50
+  nrounds = 500
 )
 
 # Get feature importance
@@ -668,14 +668,50 @@ making a false positive (i.e., $C_{FN} = 4*C_{FP}$).
     choose?
 
 ::: {.callout-note title="Solution"}
-Solution here
+
+> 0.2 is the threashold should be used with for prediction
+
+We use the formula: threshold = 1/(1 + CFN/CFP)
+When CFN = 4*CFP, the optimal threshold is: P(Y=1|X) > 1/(1 + CFN/CFP) = 1/(1 + 4) = 0.2
+
+```{r}
+optimal_threshold <- 0.2
+```
+
 :::
 
 -   How many of the offers in the test set are classified as *Accept*
     using this threshold?
 
 ::: {.callout-note title="Solution"}
-Solution here
+
+> 216 offers are classified as accept using this threashold 
+
+```{r}
+predictions <- submission
+
+# Make classifications using the optimal threshold
+classifications <- ifelse(predictions$prob_accept >= optimal_threshold, "Accept", "Reject")
+
+# Count number of predicted accepts
+num_accepts <- sum(classifications == "Accept")
+
+# Create summary statistics
+cat("Optimal threshold:", optimal_threshold, "\n")
+cat("Number of predicted accepts:", num_accepts, "\n")
+cat("Percentage of predicted accepts:", round(num_accepts/length(classifications)*100, 2), "%\n")
+
+# Visualize prediction distribution with threshold
+ggplot(predictions, aes(x = prob_accept)) +
+  geom_histogram(binwidth = 0.05, fill = "lightblue", color = "black") +
+  geom_vline(xintercept = optimal_threshold, color = "red", linetype = "dashed") +
+  annotate("text", x = optimal_threshold + 0.1, y = max(hist(predictions$prob_accept, plot = FALSE)$counts),
+           label = paste("Threshold =", optimal_threshold)) +
+  labs(title = "Distribution of Predicted Probabilities",
+       x = "Predicted Probability of Accept",
+       y = "Count")
+```
+
 :::
 
 ## c. Feature Importance (10 pts)
@@ -697,7 +733,31 @@ Notes:
 -   You are not expected to know the clinical meaning of the features.
 
 ::: {.callout-note title="Solution"}
-Solution here
+
+> Based on our analysis of donor acceptance patterns from the data provided. We are ablet to identify a few key factors that strongly impact the surgery outcome. We used a specific technique called "Gain-based Feature Importance". Our model went over one hundred plus features but we have identified the top ten most influential factors in donor acceptance which could be found below. However, these factors shuold be considered correlation instead of direct causes for donor heart transpalnt acceptance as more medical research shuold be invested into find the causal relationships. 
+
+```{r}
+# Get final feature importance from the model
+final_importance <- xgb.importance(model = xgb_model)
+final_importance_df <- as.data.frame(final_importance)
+
+# Create a cleaner visualization for clinical audience
+ggplot(head(final_importance_df, 10), aes(x = reorder(Feature, Gain), y = Gain * 100)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  theme(
+    text = element_text(size = 12),
+    axis.title = element_text(face = "bold"),
+    plot.title = element_text(size = 14, face = "bold")
+  ) +
+  labs(
+    title = "Top 10 Most Influential Factors in Donor Acceptance",
+    x = "Factor",
+    y = "Relative Importance (%)",
+    caption = "Based on model training data"
+  )
+```
+
 :::
 
 ## d. Calibration (10 pts)
@@ -707,5 +767,90 @@ having a poorly calibrated model; the purpose of this problem is to
 demonstrate your knowledge of how to evaluate calibration.
 
 ::: {.callout-note title="Solution"}
-Solution here
+```{r}
+# Load required libraries if not already loaded
+library(tidyverse)
+library(gridExtra)
+
+# Function to create calibration data
+create_calibration_data <- function(predictions, labels, n_bins = 10) {
+  # Create bins of predicted probabilities
+  pred_df <- data.frame(
+    pred_prob = predictions,
+    actual = labels
+  ) %>%
+    mutate(bin = cut(pred_prob, breaks = seq(0, 1, length.out = n_bins + 1)))
+  
+  # Calculate calibration metrics for each bin
+  cal_data <- pred_df %>%
+    group_by(bin) %>%
+    summarise(
+      n = n(),
+      mean_pred = mean(pred_prob),
+      mean_actual = mean(actual),
+      se = sqrt((mean_actual * (1 - mean_actual)) / n)
+    )
+  
+  return(cal_data)
+}
+
+# Create calibration plot
+create_calibration_plot <- function(cal_data) {
+  ggplot(cal_data, aes(x = mean_pred, y = mean_actual)) +
+    # Add diagonal reference line
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+    # Add calibration points with error bars
+    geom_errorbar(aes(ymin = mean_actual - 2*se, ymax = mean_actual + 2*se), width = 0.02) +
+    geom_point(aes(size = n), color = "steelblue") +
+    # Formatting
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    theme_minimal() +
+    labs(
+      title = "Calibration Plot",
+      x = "Predicted Probability",
+      y = "Observed Proportion",
+      size = "Sample Size"
+    ) +
+    theme(legend.position = "bottom")
+}
+
+# Calculate Brier score
+calculate_brier_score <- function(predictions, labels) {
+  mean((predictions - labels)^2)
+}
+
+# Assuming we have predictions and actual labels
+# You'll need to modify this part based on your data availability
+train_predictions <- predict(xgb_model, dtrain)
+train_brier <- calculate_brier_score(train_predictions, train_labels)
+
+# Create calibration data
+cal_data <- create_calibration_data(train_predictions, train_labels)
+
+# Create and display plots
+calibration_plot <- create_calibration_plot(cal_data)
+
+# Create reliability diagram (alternative view)
+reliability_plot <- ggplot(cal_data, aes(x = mean_pred)) +
+  geom_bar(aes(y = n/sum(n)), stat = "identity", alpha = 0.3) +
+  labs(
+    title = "Reliability Diagram",
+    x = "Predicted Probability",
+    y = "Fraction of Samples"
+  ) +
+  theme_minimal()
+
+# Display plots side by side
+grid.arrange(calibration_plot, reliability_plot, ncol = 2)
+
+# Print calibration metrics
+cat("\nCalibration Metrics:\n")
+cat("Brier Score:", round(train_brier, 4), "\n")
+
+# Calculate and print mean calibration error
+mean_cal_error <- mean(abs(cal_data$mean_pred - cal_data$mean_actual))
+cat("Mean Calibration Error:", round(mean_cal_error, 4), "\n")
+```
+
 :::
