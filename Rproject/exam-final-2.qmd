@@ -139,6 +139,13 @@ n <- length(labels)
 #   Add points below the dendrogram
 points(1:n, rep(0, n), col = colors, pch = shapes, cex = 0.8)
 
+# Calculating the eblow data
+# Calculate merge heights and cluster numbers
+elbow_data <- tibble(
+  height = rev(hc$height),               # Heights of merges (reversed)
+  K = seq_along(hc$height) + 1          # Cluster numbers (2 to n)
+)
+
 #   Add a horizontal line at k==4$height to indicate clusters 
 abline(h = filter(elbow_data, K==4)$height, lty = 3, col = "grey40")
 
@@ -220,7 +227,7 @@ kmeans_model <- kmeans(scaled_data, centers = 4, nstart = 25, iter.max = 3000)
 kmeans_clusters <- kmeans_model$cluster # getting cluster assignment for each customer
 
 # Step 4: customer 1 and 12 clustering? 
-cat['customer 1 and 12 are not in the same cluster group']
+cat('customer 1 and 12 are not in the same cluster group')
 kmeans_clusters[1] == kmeans_clusters[12]
 ```
 :::
@@ -266,7 +273,6 @@ same_cluster <- best_clusters[1] == best_clusters[100]
 cat("Are Customers 1 and 100 in the same cluster?", same_cluster, "\n")
 
 plot(mclust_model, what = "density")
-plot(mclust_mode, what = "uncertainty")
 ```
 :::
 
@@ -276,7 +282,7 @@ Discuss how you would cluster the customers if you had to do this for
 your job. Do you think one model would do better than the others?
 
 ::: {.callout-note title="Solution"}
-Add solution here
+> I believe that model-based clustering would be the best approach 
 :::
 
 # Problem 2: Unbalanced Data (15 pts)
@@ -352,9 +358,7 @@ outputting $\hat{p}(x) = \widehat{\Pr}(Y=1|X=x)$; consider the log odds
 and Bayes theorem.
 
 ::: {.callout-note title="Solution"}
-![answer for
-remedy](/Users/alexyang/Git/StatisticalLearning/Rproject/remedyanswer.png){width=100,
-height =1000}
+![answer for remedy](remedyanswer.png){width=100, height =1000}
 :::
 
 ## c. Base rate correction (5 pts)
@@ -364,7 +368,7 @@ with $\hat{p}(x) = .80$, what is the updated prediction under the
 assumption that the true proportion of AI is 1/10.
 
 ::: {.callout-note title="Solution"}
-We can apply the formula we derived from part b to answer this question 
+We can apply the formula we derived from part b to answer this question
 
 $$
 p^*(x) = \frac{0.1\times0.8}{0.1\times0.8+0.9\times0.2}\approx0.308
@@ -473,6 +477,7 @@ Performance is evaluated using log-loss.
 
 ::: {.callout-note title="Solution"}
 ### a.1 Loading and Inspecting Data
+
 ```{r}
 library(tidyverse)
 library(caret)
@@ -514,7 +519,7 @@ ggplot(na_props, aes(x = reorder(variable, proportion), y = proportion)) +
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-### a.2 Data Processing/Feature Engineering 
+### a.2 Data Processing/Feature Engineering
 
 ```{r}
 # Transforming outcomes to 0 and 1 for computing
@@ -576,7 +581,7 @@ dtrain <- xgb.DMatrix(data = train_matrix, label = train_labels)
 
 ```
 
-### a.4 Model Training and Evaluation 
+### a.4 Model Training and Evaluation
 
 ```{r}
 set.seed(42)
@@ -613,6 +618,7 @@ xgb_model <- xgb.train(
 ```
 
 ### a.5 Model Prediction
+
 ```{r}
 # Predict on test data
 dtest <- xgb.DMatrix(data = test_matrix)
@@ -655,7 +661,6 @@ cat("Original number of features:", ncol(initial_train_matrix), "\n")
 cat("Selected number of features:", length(selected_features), "\n")
 cat("Percentage of features kept:", round(length(selected_features)/ncol(initial_train_matrix)*100, 2), "%\n")
 ```
-
 :::
 
 ## b: Hard Classification (10 pts)
@@ -668,24 +673,21 @@ making a false positive (i.e., $C_{FN} = 4*C_{FP}$).
     choose?
 
 ::: {.callout-note title="Solution"}
-
 > 0.2 is the threashold should be used with for prediction
 
-We use the formula: threshold = 1/(1 + CFN/CFP)
-When CFN = 4*CFP, the optimal threshold is: P(Y=1|X) > 1/(1 + CFN/CFP) = 1/(1 + 4) = 0.2
+We use the formula: threshold = 1/(1 + CFN/CFP) When CFN = 4\*CFP, the
+optimal threshold is: P(Y=1\|X) \> 1/(1 + CFN/CFP) = 1/(1 + 4) = 0.2
 
 ```{r}
 optimal_threshold <- 0.2
 ```
-
 :::
 
 -   How many of the offers in the test set are classified as *Accept*
     using this threshold?
 
 ::: {.callout-note title="Solution"}
-
-> 216 offers are classified as accept using this threashold 
+> 216 offers are classified as accept using this threashold
 
 ```{r}
 predictions <- submission
@@ -711,7 +713,6 @@ ggplot(predictions, aes(x = prob_accept)) +
        x = "Predicted Probability of Accept",
        y = "Count")
 ```
-
 :::
 
 ## c. Feature Importance (10 pts)
@@ -733,8 +734,15 @@ Notes:
 -   You are not expected to know the clinical meaning of the features.
 
 ::: {.callout-note title="Solution"}
-
-> Based on our analysis of donor acceptance patterns from the data provided. We are ablet to identify a few key factors that strongly impact the surgery outcome. We used a specific technique called "Gain-based Feature Importance". Our model went over one hundred plus features but we have identified the top ten most influential factors in donor acceptance which could be found below. However, these factors shuold be considered correlation instead of direct causes for donor heart transpalnt acceptance as more medical research shuold be invested into find the causal relationships. 
+> Based on our analysis of donor acceptance patterns from the data
+> provided. We are ablet to identify a few key factors that strongly
+> impact the surgery outcome. We used a specific technique called
+> "Gain-based Feature Importance". Our model went over one hundred plus
+> features but we have identified the top ten most influential factors
+> in donor acceptance which could be found below. However, these factors
+> shuold be considered correlation instead of direct causes for donor
+> heart transpalnt acceptance as more medical research shuold be
+> invested into find the causal relationships.
 
 ```{r}
 # Get final feature importance from the model
@@ -743,7 +751,7 @@ final_importance_df <- as.data.frame(final_importance)
 
 # Create a cleaner visualization for clinical audience
 ggplot(head(final_importance_df, 10), aes(x = reorder(Feature, Gain), y = Gain * 100)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_bar(stat = "identity", fill = "blue") +
   coord_flip() +
   theme(
     text = element_text(size = 12),
@@ -757,7 +765,6 @@ ggplot(head(final_importance_df, 10), aes(x = reorder(Feature, Gain), y = Gain *
     caption = "Based on model training data"
   )
 ```
-
 :::
 
 ## d. Calibration (10 pts)
@@ -768,71 +775,47 @@ demonstrate your knowledge of how to evaluate calibration.
 
 ::: {.callout-note title="Solution"}
 ```{r}
-# Load required libraries if not already loaded
-library(tidyverse)
-library(gridExtra)
+# Get predictions from training data
+train_predictions <- predict(xgb_model, dtrain)
 
-# Function to create calibration data
-create_calibration_data <- function(predictions, labels, n_bins = 10) {
-  # Create bins of predicted probabilities
-  pred_df <- data.frame(
-    pred_prob = predictions,
-    actual = labels
-  ) %>%
-    mutate(bin = cut(pred_prob, breaks = seq(0, 1, length.out = n_bins + 1)))
-  
-  # Calculate calibration metrics for each bin
-  cal_data <- pred_df %>%
-    group_by(bin) %>%
-    summarise(
-      n = n(),
-      mean_pred = mean(pred_prob),
-      mean_actual = mean(actual),
-      se = sqrt((mean_actual * (1 - mean_actual)) / n)
-    )
-  
-  return(cal_data)
-}
+# Create data frame with predictions and actual values
+calibration_df <- data.frame(
+  pred_prob = train_predictions,
+  actual = train_labels
+)
+
+# Create bins of predicted probabilities (10 bins)
+calibration_df$bin <- cut(calibration_df$pred_prob, 
+                         breaks = seq(0, 1, length.out = 11))
+
+# Calculate calibration metrics for each bin
+calibration_summary <- calibration_df %>%
+  group_by(bin) %>%
+  summarise(
+    n = n(),
+    mean_pred = mean(pred_prob),
+    mean_actual = mean(actual),
+    se = sqrt((mean_actual * (1 - mean_actual)) / n)
+  )
 
 # Create calibration plot
-create_calibration_plot <- function(cal_data) {
-  ggplot(cal_data, aes(x = mean_pred, y = mean_actual)) +
-    # Add diagonal reference line
-    geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
-    # Add calibration points with error bars
-    geom_errorbar(aes(ymin = mean_actual - 2*se, ymax = mean_actual + 2*se), width = 0.02) +
-    geom_point(aes(size = n), color = "steelblue") +
-    # Formatting
-    scale_x_continuous(limits = c(0, 1)) +
-    scale_y_continuous(limits = c(0, 1)) +
-    theme_minimal() +
-    labs(
-      title = "Calibration Plot",
-      x = "Predicted Probability",
-      y = "Observed Proportion",
-      size = "Sample Size"
-    ) +
-    theme(legend.position = "bottom")
-}
+cal_plot <- ggplot(calibration_summary, aes(x = mean_pred, y = mean_actual)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
+  geom_errorbar(aes(ymin = mean_actual - 2*se, ymax = mean_actual + 2*se), width = 0.02) +
+  geom_point(aes(size = n), color = "blue") +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme_minimal() +
+  labs(
+    title = "Calibration Plot",
+    x = "Predicted Probability",
+    y = "Observed Proportion",
+    size = "Sample Size"
+  ) +
+  theme(legend.position = "bottom")
 
-# Calculate Brier score
-calculate_brier_score <- function(predictions, labels) {
-  mean((predictions - labels)^2)
-}
-
-# Assuming we have predictions and actual labels
-# You'll need to modify this part based on your data availability
-train_predictions <- predict(xgb_model, dtrain)
-train_brier <- calculate_brier_score(train_predictions, train_labels)
-
-# Create calibration data
-cal_data <- create_calibration_data(train_predictions, train_labels)
-
-# Create and display plots
-calibration_plot <- create_calibration_plot(cal_data)
-
-# Create reliability diagram (alternative view)
-reliability_plot <- ggplot(cal_data, aes(x = mean_pred)) +
+# Create reliability diagram
+rel_plot <- ggplot(calibration_summary, aes(x = mean_pred)) +
   geom_bar(aes(y = n/sum(n)), stat = "identity", alpha = 0.3) +
   labs(
     title = "Reliability Diagram",
@@ -842,15 +825,17 @@ reliability_plot <- ggplot(cal_data, aes(x = mean_pred)) +
   theme_minimal()
 
 # Display plots side by side
-grid.arrange(calibration_plot, reliability_plot, ncol = 2)
+grid.arrange(cal_plot, rel_plot, ncol = 2)
+
+# Calculate Brier score
+brier_score <- mean((train_predictions - train_labels)^2)
+
+# Calculate mean calibration error
+mean_cal_error <- mean(abs(calibration_summary$mean_pred - calibration_summary$mean_actual))
 
 # Print calibration metrics
 cat("\nCalibration Metrics:\n")
-cat("Brier Score:", round(train_brier, 4), "\n")
-
-# Calculate and print mean calibration error
-mean_cal_error <- mean(abs(cal_data$mean_pred - cal_data$mean_actual))
+cat("Brier Score:", round(brier_score, 4), "\n")
 cat("Mean Calibration Error:", round(mean_cal_error, 4), "\n")
 ```
-
 :::
