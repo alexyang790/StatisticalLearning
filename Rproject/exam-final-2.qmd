@@ -481,8 +481,8 @@ library(recipes)
 library(gridExtra)
 
 # Loading Data
-train_data <- read.csv("/Users/alexyang/Git/StatisticalLearning/Rproject/donor_accept_train-1.csv")
-test_data <- read.csv("/Users/alexyang/Git/StatisticalLearning/Rproject/donor_accept_test.csv")
+train_data <- read.csv("donor_accept_train-1.csv")
+test_data <- read.csv("donor_accept_test.csv")
 
 # Inspecting Data 
 head(train_data, n = 10)
@@ -517,10 +517,10 @@ ggplot(na_props, aes(x = reorder(variable, proportion), y = proportion)) +
 ### a.2 Data Processing/Feature Engineering 
 
 ```{r}
-# Transforming outcomes to 0 and 1
+# Transforming outcomes to 0 and 1 for computing
 train_data$outcome <- ifelse(train_data$outcome == "Accept", 1, 0)
 
-# Define preprocessing recipe
+# Define pre-processing recipe
 data_recipe <- recipe(outcome ~ ., data = train_data) %>%
   step_rm(OFFER_ID) %>%  # Remove non-predictive identifier
   step_impute_median(all_numeric_predictors()) %>%  # Impute missing values in numeric columns
@@ -551,7 +551,7 @@ initial_model <- xgb.train(
     eval_metric = "logloss"
   ),
   data = initial_dtrain,
-  nrounds = 20
+  nrounds = 50
 )
 
 # Get feature importance
@@ -594,7 +594,7 @@ xgb_params <- list(
 cv_model <- xgb.cv(
   params = xgb_params,
   data = dtrain,
-  nrounds = 50,
+  nrounds = 1000, # change this to reduce computing time
   nfold = 5,
   early_stopping_rounds = 20,
   verbose = 0
@@ -623,7 +623,8 @@ submission <- data.frame(
   OFFER_ID = test_data$OFFER_ID,
   prob_accept = predictions
 )
-#write.csv(submission, "yang_zhe_with_feature_selection.csv", row.false = FALSE)
+
+write.csv(submission, "yang_zhe_with_feature_selection.csv", row.names = FALSE)  
 
 # Visualize final feature importance
 final_importance <- xgb.importance(model = xgb_model)
