@@ -282,7 +282,7 @@ Discuss how you would cluster the customers if you had to do this for
 your job. Do you think one model would do better than the others?
 
 ::: {.callout-note title="Solution"}
-> I believe that model-based clustering would be the best approach 
+> I believe that model-based clustering would be the best approach
 :::
 
 # Problem 2: Unbalanced Data (15 pts)
